@@ -41,8 +41,7 @@ things to do:
          -the search should include supplier/hospital code with received/distributed date with quantity.
          -if items has been received and distributed bby te same supplier/hospital more than once, the quantities should be summed (?? idk either)
 
-
-   SIMPLIFIED LIST:
+SIMPLIFIED LIST:
 1. Program that creates users.txt and ppe.txt during start up.
 2. Program that creates the admin account on start up and have that admin be able to create more users with data.
 3. Program that creates the suppliers.txt file and store details/update.
