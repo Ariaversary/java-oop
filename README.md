@@ -44,9 +44,9 @@ things to do:
 3. create the menu where all process should be accessed from.
 
 SIMPLIFIED LIST:
-1. --Program that creates users.txt and ppe.txt during start up.--
-2. Program that creates the admin account on start up and have that admin be able to create more users with data.
-3. Program that creates the suppliers.txt file and store details/update.
+1. ~~Program that creates users.txt~~ and ppe.txt during start up.
+2. ~~Program that creates the admin account on start up and have that admin be able to create more users with data.~~
+3. ~~Program that creates the suppliers.txt file~~ and store details/update.
 4. Program that updates the inventory of items.
 5. Program that records the distribution/receiving of items in transactions.txt
 
@@ -57,4 +57,6 @@ My Part (Eric)
 1st Part Q.4 and 2nd Part Q.1
 
 
-THINGS DONE
+THINGS DONE:
+users.txt, suppliers.txt, adding info and updates info for suppliers and users
+limits the creation of files only to the FIRST start up
