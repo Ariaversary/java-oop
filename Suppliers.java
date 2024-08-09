@@ -2,8 +2,23 @@ import java.io.*;
 
 public class Suppliers {
     private static final String SUPPLIERS_FILE = "suppliers.txt";
+    private static final String[] VALID_SUPPLIER_IDS = {"1", "2", "3", "4"};
+
+    private static boolean isValidSupplierID(String supplierID) {
+        for (String validID : VALID_SUPPLIER_IDS) {
+            if (validID.equals(supplierID)) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     public static void addSupplier(String supplierID, String name, String contact, String address) throws IOException {
+        if (!isValidSupplierID(supplierID)) {
+            System.out.println("Invalid Supplier ID. Valid IDs are: 1, 2, 3, 4.");
+            return;
+        }
+
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(SUPPLIERS_FILE, true))) {
             writer.write(supplierID + "," + name + "," + contact + "," + address);
             writer.newLine();
@@ -12,9 +27,13 @@ public class Suppliers {
     }
 
     public static void modifySupplier(String supplierIDToModify, String newName, String newContact, String newAddress) throws IOException {
+        if (!isValidSupplierID(supplierIDToModify)) {
+            System.out.println("Invalid Supplier ID. Valid IDs are: 1, 2, 3, 4.");
+            return;
+        }
+
         File tempFile = new File("temp_suppliers.txt");
         boolean supplierFound = false;
-
         try (BufferedReader reader = new BufferedReader(new FileReader(SUPPLIERS_FILE));
              BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile))) {
 
@@ -43,6 +62,10 @@ public class Suppliers {
     }
 
     public static void searchSupplier(String supplierIDToSearch) throws IOException {
+        if (!isValidSupplierID(supplierIDToSearch)) {
+            System.out.println("Invalid Supplier ID. Valid IDs are: 1, 2, 3, 4.");
+            return;
+        }
         boolean supplierFound = false;
 
         try (BufferedReader reader = new BufferedReader(new FileReader(SUPPLIERS_FILE))) {
@@ -66,6 +89,10 @@ public class Suppliers {
     }
 
     public static void deleteSupplier(String supplierIDToDelete) throws IOException {
+        if (!isValidSupplierID(supplierIDToDelete)) {
+            System.out.println("Invalid Supplier ID. Valid IDs are: 1, 2, 3, 4.");
+            return;
+        }
         File tempFile = new File("temp_suppliers.txt");
         boolean supplierFound = false;
 
