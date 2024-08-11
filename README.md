@@ -5,16 +5,16 @@ ahahahaHAHAHAHAH
 
 things to do:
 
-1. create the initial program that creates the users.txt file: it should include userID, name, password and userType(admin/ staff). (should probably add date of registration).
-       - Admin should be able to add new users, modify them, search and delete them.
-       - creation should only be done once and only once during intial launch.
+1. ~~create the initial program that creates the users.txt file: it should include userID, name, password and userType(admin/ staff). (should probably add date of registration).~~
+       - ~~Admin should be able to add new users, modify them, search and delete them.~~
+       - ~~creation should only be done once and only once during intial launch.~~
    
-2. create the initial program that creates the ppe.txt file that stores items in the form of item code, supplier code and quantity in stock (measured in boxes).
-        - All ppe items in boxes, received, recorded and distributed. initial creation must be at 100 units.
-        - each items is supplied by one supplier, one supplier can supply more than 1 type.
+2. ~~create the initial program that creates the ppe.txt file that stores items in the form of item code, supplier code and quantity in stock (measured in boxes).~~
+        ~~- All ppe items in boxes, received, recorded and distributed. initial creation must be at 100 units.~~
+        ~~- each items is supplied by one supplier, one supplier can supply more than 1 type.~~
         - minimum of 3 hospitals. with only 3 to 4 suppliers.
 
-3. create a program that creates the suppliers.txt file to store and update supplier details.
+3.~~create a program that creates the suppliers.txt file to store and update supplier details.~~
 
 4. create the inventory update program.
          -update item quantities every time after receiving/distributing (increase/decrease).
@@ -44,7 +44,7 @@ things to do:
 3. create the menu where all process should be accessed from.
 
 SIMPLIFIED LIST:
-1. ~~Program that creates users.txt~~ and ppe.txt during start up.
+1. ~~Program that creates users.txt and ppe.txt during start up.~~
 2. ~~Program that creates the admin account on start up and have that admin be able to create more users with data.~~
 3. ~~Program that creates the suppliers.txt file~~ and store details/update.
 4. Program that updates the inventory of items.
