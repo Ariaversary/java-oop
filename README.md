@@ -56,7 +56,3 @@ SIMPLIFIED LIST:
 My Part (Eric)
 1st Part Q.4 and 2nd Part Q.1
 
-
-THINGS DONE:
-users.txt, suppliers.txt, adding info and updates info for suppliers and users
-limits the creation of files only to the FIRST start up
