@@ -12,7 +12,7 @@ things to do:
 2. ~~create the initial program that creates the ppe.txt file that stores items in the form of item code, supplier code and quantity in stock (measured in boxes).~~
         ~~- All ppe items in boxes, received, recorded and distributed. initial creation must be at 100 units.~~
         ~~- each items is supplied by one supplier, one supplier can supply more than 1 type.~~
-        - minimum of 3 hospitals. with only 3 to 4 suppliers.
+        ~~- minimum of 3 hospitals. with only 3 to 4 suppliers.~~
 
 3.~~create a program that creates the suppliers.txt file to store and update supplier details.~~
 
