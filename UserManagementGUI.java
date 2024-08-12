@@ -10,6 +10,7 @@ public class UserManagementGUI extends JFrame {
     private static final String USER_FILE_NAME = "users.txt";
     private static final String SUPPLIER_FILE_NAME = "suppliers.txt";
     private static final String PPE_FILE_NAME = "ppe.txt";
+    private static final String HOSPITAL_FILE_NAME = "hospitals.txt";
 
     private JPanel mainPanel;
     private CardLayout cardLayout;
@@ -30,6 +31,9 @@ public class UserManagementGUI extends JFrame {
             initializeFiles();
             if (!isPPEFileExists()) {
                 initializePPEFile();
+            }
+            if (!isHospitalFileExists()) {
+                initializeHospitalFile();
             }
         } catch (IOException e) {
             showErrorDialog("Error initializing files: " + e.getMessage());
@@ -54,9 +58,18 @@ public class UserManagementGUI extends JFrame {
         return ppeFile.exists();
     }
 
+    private boolean isHospitalFileExists() {
+        File hospitalFile = new File(HOSPITAL_FILE_NAME);
+        return hospitalFile.exists();
+    }
+
     private void initializePPEFile() {
         // Call the static method from the PPE class to create the PPE file
         PPE.createPPEFile();
+    }
+
+    private void initializeHospitalFile() {
+        Hospitals.initializeHospitalFile();
     }
 
     public static class PPE {
@@ -178,7 +191,6 @@ public class UserManagementGUI extends JFrame {
     private void showAdminScreen() {
         setTitle("User Management System");
 
-        // Create mainPanel for the admin screen
         mainPanel = new JPanel(new BorderLayout());
         createMainMenu();
         cardPanel.add(mainPanel, "AdminScreen");
@@ -189,25 +201,34 @@ public class UserManagementGUI extends JFrame {
     }
 
     private void createMainMenu() {
-        JPanel menuPanel = new JPanel(new GridLayout(5, 1));
+        JPanel menuPanel = new JPanel(new GridLayout(6, 1));
     
         JButton userManagementButton = new JButton("User Management");
         JButton supplierManagementButton = new JButton("Supplier Management");
+        JButton hospitalManagementButton = new JButton("Hospital Management");
         JButton exitButton = new JButton("Exit");
         JButton logoutButton = new JButton("Logout");
     
         userManagementButton.addActionListener(e -> showUserManagementPanel());
         supplierManagementButton.addActionListener(e -> showSupplierManagementPanel());
+        hospitalManagementButton.addActionListener(e -> showHospitalManagementPanel());
         exitButton.addActionListener(e -> System.exit(0));
         logoutButton.addActionListener(e -> logout());
     
         menuPanel.add(userManagementButton);
         menuPanel.add(supplierManagementButton);
+        menuPanel.add(hospitalManagementButton);
         menuPanel.add(exitButton);
         menuPanel.add(logoutButton);
     
         mainPanel.add(menuPanel, BorderLayout.CENTER);
     }
+
+    private void showHospitalManagementPanel() {
+        JPanel hospitalManagementPanel = createHospitalManagementPanel();
+        cardPanel.add(hospitalManagementPanel, "HospitalManagementPanel");
+        cardLayout.show(cardPanel, "HospitalManagementPanel");
+    }    
 
     private void showUserManagementPanel() {
         JPanel userManagementPanel = createUserManagementPanel();
@@ -219,6 +240,139 @@ public class UserManagementGUI extends JFrame {
         JPanel supplierManagementPanel = createSupplierManagementPanel();
         cardPanel.add(supplierManagementPanel, "SupplierManagementPanel");
         cardLayout.show(cardPanel, "SupplierManagementPanel");
+    }
+
+    private JPanel createHospitalManagementPanel() {
+        JPanel hospitalPanel = new JPanel(new BorderLayout());
+        JPanel buttonPanel = new JPanel(new GridLayout(5, 1)); // Changed to 5 to accommodate the new button
+    
+        JButton addHospitalButton = new JButton("Add Hospital");
+        JButton modifyHospitalButton = new JButton("Modify Hospital");
+        JButton searchHospitalButton = new JButton("Search Hospital");
+        JButton deleteHospitalButton = new JButton("Delete Hospital");
+        JButton backButton = new JButton("Back"); // Added the Back button
+    
+        addHospitalButton.addActionListener(e -> showAddHospitalPanel());
+        modifyHospitalButton.addActionListener(e -> showModifySearchDeleteHospitalPanel("Modify"));
+        searchHospitalButton.addActionListener(e -> showModifySearchDeleteHospitalPanel("Search"));
+        deleteHospitalButton.addActionListener(e -> showModifySearchDeleteHospitalPanel("Delete"));
+        backButton.addActionListener(e -> cardLayout.show(cardPanel, "AdminScreen")); // Action for Back button
+    
+        buttonPanel.add(addHospitalButton);
+        buttonPanel.add(modifyHospitalButton);
+        buttonPanel.add(searchHospitalButton);
+        buttonPanel.add(deleteHospitalButton);
+        buttonPanel.add(backButton); // Added Back button to panel
+    
+        hospitalPanel.add(buttonPanel, BorderLayout.CENTER);
+        return hospitalPanel;
+    }
+    
+
+    private void showAddHospitalPanel() {
+        JPanel addHospitalPanel = new JPanel(new GridLayout(7, 2));
+        addHospitalPanel.add(new JLabel("Hospital Name:"));
+        JTextField nameField = new JTextField();
+        addHospitalPanel.add(nameField);
+        addHospitalPanel.add(new JLabel("Hospital ID:"));
+        JTextField idField = new JTextField();
+        addHospitalPanel.add(idField);
+        addHospitalPanel.add(new JLabel("Hospital Address:"));
+        JTextField addressField = new JTextField();
+        addHospitalPanel.add(addressField);
+        addHospitalPanel.add(new JLabel("Phone Number:"));
+        JTextField phoneField = new JTextField();
+        addHospitalPanel.add(phoneField);
+        addHospitalPanel.add(new JLabel("Email:"));
+        JTextField emailField = new JTextField();
+        addHospitalPanel.add(emailField);
+        
+        JButton addButton = new JButton("Add");
+        addHospitalPanel.add(addButton);
+        
+        JButton backButton = new JButton("Back");
+        addHospitalPanel.add(backButton);
+        
+        addButton.addActionListener(e -> addHospital(nameField, idField, addressField, phoneField, emailField));
+        backButton.addActionListener(e -> cardLayout.show(cardPanel, "HospitalManagementPanel")); // Return to the hospital management panel
+        
+        JPanel addHospitalContainer = new JPanel(new BorderLayout());
+        addHospitalContainer.add(addHospitalPanel, BorderLayout.CENTER);
+    
+        cardPanel.add(addHospitalContainer, "AddHospitalPanel");
+        cardLayout.show(cardPanel, "AddHospitalPanel");
+    }
+    
+
+    private void showModifySearchDeleteHospitalPanel(String action) {
+        JPanel panel = new JPanel(new GridLayout(7, 2));
+        panel.add(new JLabel("Hospital ID:"));
+        JTextField idField = new JTextField();
+        panel.add(idField);
+        
+        if (action.equals("Search")) {
+            JButton searchButton = new JButton("Search");
+            panel.add(searchButton);
+    
+            searchButton.addActionListener(e -> {
+                String id = idField.getText();
+                if (id.isEmpty()) {
+                    JOptionPane.showMessageDialog(this, "Hospital ID must be provided.", "Input Error", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+                searchHospital(idField);
+            });
+        } else {
+            panel.add(new JLabel("Hospital Name:"));
+            JTextField nameField = new JTextField();
+            panel.add(nameField);
+            panel.add(new JLabel("Hospital Address:"));
+            JTextField addressField = new JTextField();
+            panel.add(addressField);
+            panel.add(new JLabel("Phone Number:"));
+            JTextField phoneField = new JTextField();
+            panel.add(phoneField);
+            panel.add(new JLabel("Email:"));
+            JTextField emailField = new JTextField();
+            panel.add(emailField);
+            
+            JButton actionButton = new JButton(action);
+            panel.add(actionButton);
+    
+            actionButton.addActionListener(e -> {
+                String id = idField.getText();
+                String name = nameField.getText();
+                String address = addressField.getText();
+                String phone = phoneField.getText();
+                String email = emailField.getText();
+    
+                if (id.isEmpty() || (action.equals("Modify") && (name.isEmpty() || address.isEmpty() || phone.isEmpty() || email.isEmpty()))) {
+                    JOptionPane.showMessageDialog(this, "All fields must be filled.", "Input Error", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+    
+                try {
+                    if (action.equals("Modify")) {
+                        modifyHospital(idField.getText(), nameField.getText(), addressField.getText(), phoneField.getText(), emailField.getText());
+                    } else if (action.equals("Delete")) {
+                        deleteHospital(idField.getText());
+                    }
+                } catch (IllegalArgumentException ex) {
+                    JOptionPane.showMessageDialog(this, "Error: " + ex.getMessage(), "Operation Error", JOptionPane.ERROR_MESSAGE);
+                }
+            });
+        }
+        
+        JButton backButton = new JButton("Back");
+        panel.add(backButton);
+    
+        backButton.addActionListener(e -> cardLayout.show(cardPanel, "HospitalManagementPanel"));
+        
+        JPanel container = new JPanel(new BorderLayout());
+        container.add(panel, BorderLayout.CENTER);
+    
+        cardPanel.add(container, action + "HospitalPanel");
+        cardLayout.show(cardPanel, action + "HospitalPanel");
     }
 
     private JPanel createUserManagementPanel() {
@@ -527,6 +681,65 @@ public class UserManagementGUI extends JFrame {
         } catch (Exception e) {
             showErrorDialog("An unexpected error occurred: " + e.getMessage());
             e.printStackTrace();
+        }
+    }
+
+    private void addHospital(JTextField nameField, JTextField idField, JTextField addressField, JTextField phoneField, JTextField emailField) {
+        String name = nameField.getText();
+        String id = idField.getText();
+        String address = addressField.getText();
+        String phone = phoneField.getText();
+        String email = emailField.getText();
+    
+        if (name.isEmpty() || id.isEmpty() || address.isEmpty() || phone.isEmpty() || email.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "All fields must be filled.");
+            return;
+        }
+    
+        try {
+            Hospitals.addHospital(name, id, address, phone, email);
+            JOptionPane.showMessageDialog(this, "Hospital added successfully.");
+        } catch (IllegalArgumentException | IOException e) {
+            JOptionPane.showMessageDialog(this, "Error adding hospital: " + e.getMessage());
+        }
+    }
+
+    private void modifyHospital(String idToModify, String newName, String newAddress, String newPhone, String newEmail) {
+        try {
+            Hospitals.modifyHospital(idToModify, newName, newAddress, newPhone, newEmail);
+            JOptionPane.showMessageDialog(this, "Hospital modified successfully.");
+        } catch (IllegalArgumentException | IOException e) {
+            JOptionPane.showMessageDialog(this, "Error modifying hospital: " + e.getMessage());
+        }
+    }
+
+    private void searchHospital(JTextField idField) {
+        String id = idField.getText();
+        
+        if (id.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Hospital ID must be provided.");
+            return;
+        }
+    
+        try {
+            String details = Hospitals.searchHospital(id);
+            JOptionPane.showMessageDialog(this, details);
+        } catch (IllegalArgumentException | IOException e) {
+            JOptionPane.showMessageDialog(this, "Error searching hospital: " + e.getMessage());
+        }
+    }
+
+    private void deleteHospital(String id) {
+        if (id.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Hospital ID must be provided.");
+            return;
+        }
+    
+        try {
+            Hospitals.deleteHospital(id);
+            JOptionPane.showMessageDialog(this, "Hospital deleted successfully.");
+        } catch (IllegalArgumentException | IOException e) {
+            JOptionPane.showMessageDialog(this, "Error deleting hospital: " + e.getMessage());
         }
     }
     
