@@ -1,10 +1,8 @@
 import javax.swing.*;
 import java.awt.*;
 import java.io.*;
-import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -14,7 +12,6 @@ public class UserManagementGUI extends JFrame {
     private static final String PPE_FILE_NAME = "ppe.txt";
 
     private JPanel mainPanel;
-    private JTextArea outputArea;
     private CardLayout cardLayout;
     private JPanel cardPanel;
 
@@ -62,7 +59,6 @@ public class UserManagementGUI extends JFrame {
         PPE.createPPEFile();
     }
 
-    // Inner PPE class remains the same
     public static class PPE {
         public static class PPEItem {
             private String code;
@@ -92,7 +88,6 @@ public class UserManagementGUI extends JFrame {
             // List to hold PPE items
             List<PPEItem> ppeItems = new ArrayList<>();
             
-            // Add PPE items with initial data
             ppeItems.add(new PPEItem("HC", "Head Cover", "1", 100));
             ppeItems.add(new PPEItem("FS", "Face Shield", "1", 100));
             ppeItems.add(new PPEItem("MS", "Mask", "2", 100));
@@ -100,7 +95,6 @@ public class UserManagementGUI extends JFrame {
             ppeItems.add(new PPEItem("GW", "Gown", "3", 100));
             ppeItems.add(new PPEItem("SC", "Shoe Covers", "4", 100));
 
-            // File path
             String filePath = PPE_FILE_NAME;
 
             // Write the PPE items to the file
@@ -116,43 +110,44 @@ public class UserManagementGUI extends JFrame {
         }
     }
 
-private void showLoginScreen() {
-    JPanel loginPanel = new JPanel(new GridLayout(2, 2));
-    loginPanel.add(new JLabel("Username:"));
-    JTextField usernameField = new JTextField();
-    loginPanel.add(usernameField);
-    loginPanel.add(new JLabel("Password:"));
-    JPasswordField passwordField = new JPasswordField();
-    loginPanel.add(passwordField);
-
-    int option = JOptionPane.showConfirmDialog(null, loginPanel, "Login", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
-    if (option == JOptionPane.OK_OPTION) {
-        String userID = usernameField.getText();
-        String password = new String(passwordField.getPassword());
-
-        String userType = authenticate(userID, password);
-        if (userType != null) {
-            if (userType.equals("admin")) {
-                showAdminScreen();
-            } else if (userType.equals("staff")) {
-                showStaffScreen();
+    private void showLoginScreen() {
+        JPanel loginPanel = new JPanel(new GridLayout(2, 2));
+        loginPanel.add(new JLabel("Username:"));
+        JTextField usernameField = new JTextField();
+        loginPanel.add(usernameField);
+        loginPanel.add(new JLabel("Password:"));
+        JPasswordField passwordField = new JPasswordField();
+        loginPanel.add(passwordField);
+        
+        int option = JOptionPane.showConfirmDialog(this, loginPanel, "Login", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+        if (option == JOptionPane.OK_OPTION) {
+            String userID = usernameField.getText();
+            String password = new String(passwordField.getPassword());
+    
+            String userType = authenticate(userID, password);
+            if (userType != null) {
+                if (userType.equals("admin")) {
+                    showAdminScreen();
+                } else if (userType.equals("staff")) {
+                    showStaffScreen();
+                } else {
+                    showErrorDialog("Invalid user type.");
+                    showLoginScreen();
+                }
             } else {
-                showErrorDialog("Invalid user type.");
+                showErrorDialog("Invalid username or password.");
                 showLoginScreen();
             }
         } else {
-            showErrorDialog("Invalid username or password.");
-            showLoginScreen();
+            System.exit(0);
         }
-    } else {
-        System.exit(0);
     }
-}
+
     private String authenticate(String userID, String password) {
         // Check if the login is for the admin with hardcoded credentials
         if (userID.equals("admin")) {
-            if (password.equals("admin_password")) { // Replace "admin_password" with the actual admin password
-                return "admin"; // Return admin type
+            if (password.equals("admin_password")) {
+                return "admin";
             }
         }
 
@@ -160,10 +155,9 @@ private void showLoginScreen() {
         try (BufferedReader reader = new BufferedReader(new FileReader(USER_FILE_NAME))) {
             String line;
             while ((line = reader.readLine()) != null) {
-                // Split the line into parts based on comma
                 String[] userData = line.split(",");
 
-                // Check if the line has the correct number of parts (username, name, password, usertype, dateofregistration)
+                // Check if the line has the correct number of data
                 if (userData.length == 5) {
                     String fileUserID = userData[0];
                     String filePassword = userData[2];
@@ -171,7 +165,7 @@ private void showLoginScreen() {
 
                     // Validate the username, password, and usertype
                     if (fileUserID.equals(userID) && filePassword.equals(password)) {
-                        return fileUserType; // Return user type (e.g., "admin", "staff")
+                        return fileUserType;
                     }
                 }
             }
@@ -191,26 +185,26 @@ private void showLoginScreen() {
         cardLayout.show(cardPanel, "AdminScreen");
 
         getContentPane().add(cardPanel);
-        setVisible(true); // Make the frame visible
+        setVisible(true);
     }
 
     private void createMainMenu() {
-        JPanel menuPanel = new JPanel(new GridLayout(5, 1)); // Adjusted to accommodate the Logout button
+        JPanel menuPanel = new JPanel(new GridLayout(5, 1));
     
         JButton userManagementButton = new JButton("User Management");
         JButton supplierManagementButton = new JButton("Supplier Management");
         JButton exitButton = new JButton("Exit");
-        JButton logoutButton = new JButton("Logout"); // New button
+        JButton logoutButton = new JButton("Logout");
     
         userManagementButton.addActionListener(e -> showUserManagementPanel());
         supplierManagementButton.addActionListener(e -> showSupplierManagementPanel());
         exitButton.addActionListener(e -> System.exit(0));
-        logoutButton.addActionListener(e -> logout()); // Action for logout button
+        logoutButton.addActionListener(e -> logout());
     
         menuPanel.add(userManagementButton);
         menuPanel.add(supplierManagementButton);
         menuPanel.add(exitButton);
-        menuPanel.add(logoutButton); // Add Logout button to menu panel
+        menuPanel.add(logoutButton);
     
         mainPanel.add(menuPanel, BorderLayout.CENTER);
     }
@@ -246,8 +240,8 @@ private void showLoginScreen() {
         userPanel.add(new JLabel("UserType (admin/staff):"));
         userPanel.add(userTypeField);
 
-        // Create buttons and add action listeners
-        JPanel buttonPanel = new JPanel(new GridLayout(5, 1)); // Adjusted to accommodate the Back button
+        // Create buttons
+        JPanel buttonPanel = new JPanel(new GridLayout(5, 1));
         JButton addUserButton = new JButton("Add User");
         JButton modifyUserButton = new JButton("Modify User");
         JButton searchUserButton = new JButton("Search User");
@@ -290,8 +284,8 @@ private void showLoginScreen() {
         supplierPanel.add(new JLabel("Phone:"));
         supplierPanel.add(supplierPhoneField);
 
-        // Create buttons and add action listeners
-        JPanel buttonPanel = new JPanel(new GridLayout(5, 1)); // Adjusted to accommodate the Back button
+        // Create buttons
+        JPanel buttonPanel = new JPanel(new GridLayout(5, 1));
         JButton addSupplierButton = new JButton("Add Supplier");
         JButton modifySupplierButton = new JButton("Modify Supplier");
         JButton searchSupplierButton = new JButton("Search Supplier");
@@ -316,17 +310,10 @@ private void showLoginScreen() {
     }
 
     private void logout() {
-        // Remove all components from the card panel
         cardPanel.removeAll();
-    
-        // Reset the card layout
-        cardPanel.setLayout(new CardLayout());
-        cardLayout = (CardLayout) cardPanel.getLayout();
-    
-        // Add the login screen back to the card panel
+        cardLayout = new CardLayout();
+        cardPanel.setLayout(cardLayout);
         showLoginScreen();
-    
-        // Update the content pane to show the card panel with the login screen
         getContentPane().removeAll();
         getContentPane().add(cardPanel);
         revalidate();
@@ -334,126 +321,71 @@ private void showLoginScreen() {
     }
 
     private void addUser(JTextField userIDField, JTextField nameField, JTextField passwordField, JTextField userTypeField) {
-        String userID = userIDField.getText();
-    
-        if (!isUserIDUnique(userID)) {
-            SwingUtilities.invokeLater(() -> showErrorDialog("UserID already exists."));
-            return; // Exit method if UserID is not unique
+        String userID = userIDField.getText().trim();
+        String name = nameField.getText().trim();
+        String password = passwordField.getText().trim();
+        String userType = userTypeField.getText().trim();
+
+        // Validate inputs
+        if (userID.isEmpty() || name.isEmpty() || password.isEmpty() || userType.isEmpty()) {
+            showErrorDialog("All fields must be filled out.");
+            return;
         }
-    
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(USER_FILE_NAME, true))) {
-            String name = nameField.getText();
-            String password = passwordField.getText();
-            String userType = userTypeField.getText();
-            String dateOfRegistration = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
-    
-            writer.write(String.format("%s,%s,%s,%s,%s", userID, name, password, userType, dateOfRegistration));
-            writer.newLine();
-    
-            SwingUtilities.invokeLater(() -> {
-                if (outputArea != null) { // Check if outputArea is initialized
-                    outputArea.append("User added successfully.\n");
-                } else {
-                    showErrorDialog("Output area not initialized.");
-                }
-            });
+
+        if (!userType.equalsIgnoreCase("admin") && !userType.equalsIgnoreCase("staff")) {
+            showErrorDialog("Invalid user type. Must be 'admin' or 'staff'.");
+            return;
+        }
+
+        try {
+            Userstuff.addUser(userID, name, password, userType);
+            showConfirmationDialog("User added successfully: " + userID);
+        } catch (IllegalArgumentException e) {
+            showErrorDialog(e.getMessage());
         } catch (IOException e) {
-            SwingUtilities.invokeLater(() -> showErrorDialog("Error adding user: " + e.getMessage()));
+            showErrorDialog("Error adding user: " + e.getMessage());
         }
-    }
-    
-    private boolean isUserIDUnique(String userID) {
-        try (BufferedReader reader = new BufferedReader(new FileReader(USER_FILE_NAME))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                String[] userData = line.split(",");
-                if (userData.length == 5 && userData[0].equals(userID)) { // Updated length check
-                    return false; // UserID is not unique
-                }
-            }
-        } catch (IOException e) {
-            showErrorDialog("Error checking userID uniqueness: " + e.getMessage());
-        }
-        return true; // UserID is unique
     }
 
     private void modifyUser(JTextField userIDField, JTextField nameField, JTextField passwordField, JTextField userTypeField) {
-        String userID = userIDField.getText();
-        String newName = nameField.getText();
-        String newPassword = passwordField.getText();
+        String userID = userIDField.getText().trim();
+        String newName = nameField.getText().trim();
+        String newPassword = passwordField.getText().trim();
         String newUserType = userTypeField.getText().trim().toLowerCase();
-    
+
+        if (userID.isEmpty() || newName.isEmpty() || newPassword.isEmpty() || newUserType.isEmpty()) {
+            showErrorDialog("All fields must be filled out.");
+            return;
+        }
+
         if (!newUserType.equals("admin") && !newUserType.equals("staff")) {
             showErrorDialog("Invalid user type. Must be 'admin' or 'staff'.");
             return;
         }
-    
-        File inputFile = new File(USER_FILE_NAME);
-        File tempFile = new File("temp_users.txt");
-    
-        try (BufferedReader reader = new BufferedReader(new FileReader(inputFile));
-             BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile))) {
-    
-            String line;
-            boolean userFound = false;
-    
-            while ((line = reader.readLine()) != null) {
-                String[] userData = line.split(",");
-                if (userData.length == 5 && userData[0].equals(userID)) {
-                    writer.write(userID + "," + newName + "," + newPassword + "," + newUserType + "," + userData[4]);
-                    writer.newLine();
-                    userFound = true;
-                } else {
-                    writer.write(line);
-                    writer.newLine();
-                }
-            }
-    
-            if (!userFound) {
-                showErrorDialog("UserID not found.");
-            } else {
-                showConfirmationDialog("User modified successfully: " + userID);
-            }
-    
+
+        try {
+            Userstuff.modifyUser(userID, newName, newPassword, newUserType);
+            showConfirmationDialog("User modified successfully: " + userID);
+        } catch (IllegalArgumentException e) {
+            showErrorDialog(e.getMessage());
         } catch (IOException e) {
             showErrorDialog("Error modifying user: " + e.getMessage());
         }
-    
-        inputFile.delete();
-        tempFile.renameTo(inputFile);
     }
 
     private void searchUser(JTextField userIDField) {
         String userID = userIDField.getText();
-        StringBuilder userDetails = new StringBuilder();
-        boolean userFound = false; // Declare and initialize the variable
-        
-        try (BufferedReader reader = new BufferedReader(new FileReader(USER_FILE_NAME))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                String[] userData = line.split(",");
-                if (userData.length == 5 && userData[0].equals(userID)) {
-                    userDetails.append("UserID: ").append(userData[0]).append("\n");
-                    userDetails.append("Name: ").append(userData[1]).append("\n");
-                    userDetails.append("Password: ").append(userData[2]).append("\n");
-                    userDetails.append("User Type: ").append(userData[3]).append("\n");
-                    userDetails.append("Date of Registration: ").append(userData[4]).append("\n");
-                    userFound = true; // Set the flag to true if user is found
-                    break; // Exit the loop once the user is found
-                }
-            }
-            
-            if (userFound) {
-                displaySearchUserWindow(userID, userDetails.toString());
-            } else {
-                showErrorDialog("UserID not found.");
-            }
-            
+
+        try {
+            String details = Userstuff.searchUser(userID);
+            displaySearchUserWindow(userID, details);
+        } catch (IllegalArgumentException e) {
+            showErrorDialog(e.getMessage());
         } catch (IOException e) {
             showErrorDialog("Error searching user: " + e.getMessage());
         }
     }
-    
+
     private void displaySearchUserWindow(String userID, String userDetails) {
         JFrame searchFrame = new JFrame("Search Results");
         searchFrame.setSize(300, 200);
@@ -472,94 +404,87 @@ private void showLoginScreen() {
     
         searchFrame.add(searchPanel);
         searchFrame.setVisible(true);
-    }  
+    }
 
     private void deleteUser(JTextField userIDField) {
-        String userID = userIDField.getText();
-    
-        File inputFile = new File(USER_FILE_NAME);
-        File tempFile = new File("temp_users.txt");
-    
-        try (BufferedReader reader = new BufferedReader(new FileReader(inputFile));
-             BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile))) {
-    
-            String line;
-            boolean userFound = false;
-    
-            while ((line = reader.readLine()) != null) {
-                String[] userData = line.split(",");
-                if (userData.length == 4 && userData[0].equals(userID)) {
-                    userFound = true;
-                } else {
-                    writer.write(line);
-                    writer.newLine();
-                }
-            }
-    
-            if (!userFound) {
-                showErrorDialog("UserID not found.");
-            } else {
-                showConfirmationDialog("User deleted successfully: " + userID);
-            }
-    
+        String userID = userIDField.getText().trim();
+
+        if (userID.isEmpty()) {
+            showErrorDialog("User ID cannot be empty.");
+            return;
+        }
+
+        try {
+            Userstuff.deleteUser(userID);
+            showConfirmationDialog("User deleted successfully: " + userID);
+        } catch (IllegalArgumentException e) {
+            showErrorDialog(e.getMessage());
         } catch (IOException e) {
             showErrorDialog("Error deleting user: " + e.getMessage());
         }
+    }
     
-        inputFile.delete();
-        tempFile.renameTo(inputFile);
-    }  
 
-    private void addSupplier(JTextField supplierIDField, JTextField supplierNameField, JTextField supplierContactField, JTextField supplierAddressField) {
-        String supplierID = supplierIDField.getText();
-        String name = supplierNameField.getText();
-        String contact = supplierContactField.getText();
-        String address = supplierAddressField.getText();
+    private void addSupplier(JTextField supplierIDField, JTextField supplierNameField, JTextField supplierAddressField, JTextField supplierPhoneField) {
+        String supplierID = supplierIDField.getText().trim();
+        String name = supplierNameField.getText().trim();
+        String address = supplierAddressField.getText().trim();
+        String phone = supplierPhoneField.getText().trim();
+    
+        if (supplierID.isEmpty() || name.isEmpty() || address.isEmpty() || phone.isEmpty()) {
+            showErrorDialog("All fields must be filled out.");
+            return;
+        }
     
         try {
-            Suppliers.addSupplier(supplierID, name, contact, address);
+            Suppliers.addSupplier(supplierID, name, phone, address);
             showConfirmationDialog("Supplier added successfully: " + supplierID);
         } catch (IllegalArgumentException | IOException e) {
             showErrorDialog(e.getMessage());
         }
     }
     
-    private void modifySupplier(JTextField supplierIDField, JTextField supplierNameField, JTextField supplierContactField, JTextField supplierAddressField) {
-        String supplierID = supplierIDField.getText();
-        String newName = supplierNameField.getText();
-        String newContact = supplierContactField.getText();
-        String newAddress = supplierAddressField.getText();
-        
+    
+    private void modifySupplier(JTextField supplierIDField, JTextField supplierNameField, JTextField supplierAddressField, JTextField supplierPhoneField) {
+        String supplierID = supplierIDField.getText().trim();
+        String newName = supplierNameField.getText().trim();
+        String newAddress = supplierAddressField.getText().trim();
+        String newPhone = supplierPhoneField.getText().trim();
+    
+        if (supplierID.isEmpty() || newName.isEmpty() || newAddress.isEmpty() || newPhone.isEmpty()) {
+            showErrorDialog("All fields must be filled out.");
+            return;
+        }
+    
         try {
-            // Call method to modify supplier and handle any exceptions
-            Suppliers.modifySupplier(supplierID, newName, newContact, newAddress);
+            Suppliers.modifySupplier(supplierID, newName, newPhone, newAddress);
             showConfirmationDialog("Supplier modified successfully: " + supplierID);
         } catch (IllegalArgumentException e) {
-            // Handle invalid supplier ID error
             showErrorDialog("Invalid Supplier ID: " + e.getMessage());
         } catch (IOException e) {
-            // Handle IO exceptions
             showErrorDialog("Error modifying supplier: " + e.getMessage());
         }
     }
     
+    
     private void searchSupplier(JTextField supplierIDField) {
-        String supplierID = supplierIDField.getText();
+        String supplierID = supplierIDField.getText().trim();
+    
+        if (supplierID.isEmpty()) {
+            showErrorDialog("Supplier ID cannot be empty.");
+            return;
+        }
+    
         StringBuilder supplierDetails = new StringBuilder();
     
         try {
-            // Call method to search for supplier and get the details
             String details = Suppliers.searchSupplier(supplierID);
-            // Append the details if supplier is found
             supplierDetails.append(details);
-            
-            // Display the search results
+    
             displaySearchSupplierWindow(supplierID, supplierDetails.toString());
         } catch (IllegalArgumentException e) {
-            // Handle invalid Supplier ID error
             showErrorDialog("Error: " + e.getMessage());
         } catch (IOException e) {
-            // Handle IO exceptions
             showErrorDialog("Error searching for supplier: " + e.getMessage());
         }
     }
@@ -585,29 +510,38 @@ private void showLoginScreen() {
     }
 
     private void deleteSupplier(JTextField supplierIDField) {
-        String supplierID = supplierIDField.getText();
+        String supplierID = supplierIDField.getText().trim();
+    
+        if (supplierID.isEmpty()) {
+            showErrorDialog("Supplier ID cannot be empty.");
+            return;
+        }
     
         try {
-            // Call method to delete supplier and handle any exceptions
             Suppliers.deleteSupplier(supplierID);
             showConfirmationDialog("Supplier deleted successfully: " + supplierID);
+        } catch (IllegalArgumentException e) {
+            showErrorDialog("Invalid Supplier ID: " + e.getMessage());
         } catch (IOException e) {
             showErrorDialog("Error deleting supplier: " + e.getMessage());
+        } catch (Exception e) {
+            showErrorDialog("An unexpected error occurred: " + e.getMessage());
+            e.printStackTrace();
         }
     }
-
-    private void showConfirmationDialog(String message) {
-        JOptionPane.showMessageDialog(this, message, "Confirmation", JOptionPane.INFORMATION_MESSAGE);
-    }
+    
 
     private void showErrorDialog(String message) {
         JOptionPane.showMessageDialog(this, message, "Error", JOptionPane.ERROR_MESSAGE);
+    }
+    
+    private void showConfirmationDialog(String message) {
+        JOptionPane.showMessageDialog(this, message, "Confirmation", JOptionPane.INFORMATION_MESSAGE);
     }
 
     private void showStaffScreen() {
         // Code to display the staff screen
         System.out.println("Staff screen not yet implemented.");
-        // Example: new StaffScreen().setVisible(true);
     }
 
     public static void main(String[] args) {
