@@ -26,7 +26,7 @@ public class Suppliers {
         }
     }
 
-    private static boolean isValidSupplierID(String supplierID) {
+    public static boolean isValidSupplierID(String supplierID) {
         for (String validID : VALID_SUPPLIER_IDS) {
             if (validID.equals(supplierID)) {
                 return true;
@@ -35,7 +35,7 @@ public class Suppliers {
         return false;
     }
 
-    private static boolean isSupplierIDInUse(String supplierID) {
+    public static boolean isSupplierIDInUse(String supplierID) {
         return usedSupplierIDs.contains(supplierID);
     }
 

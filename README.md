@@ -56,3 +56,17 @@ SIMPLIFIED LIST:
 My Part (Eric)
 1st Part Q.4 and 2nd Part Q.1
 
+
+
+CURRENT ERRORS:
+
+Delete Supplier Error Message: Duplicated Invalid IDs
+
+
+
+
+
+
+IDEAS (By Oguess):
+
+When Adding/Modifying Supplier IDs, if it is limited to 4 ids (1,2,3 or 4), have the program display available/taken IDs and have the error message correnspond to this as well

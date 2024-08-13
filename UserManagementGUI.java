@@ -271,21 +271,18 @@ public class UserManagementGUI extends JFrame {
 
     private void showAddHospitalPanel() {
         JPanel addHospitalPanel = new JPanel(new GridLayout(7, 2));
-        addHospitalPanel.add(new JLabel("Hospital Name:"));
-        JTextField nameField = new JTextField();
-        addHospitalPanel.add(nameField);
         addHospitalPanel.add(new JLabel("Hospital ID:"));
         JTextField idField = new JTextField();
         addHospitalPanel.add(idField);
+        addHospitalPanel.add(new JLabel("Hospital Name:"));
+        JTextField nameField = new JTextField();
+        addHospitalPanel.add(nameField);
         addHospitalPanel.add(new JLabel("Hospital Address:"));
         JTextField addressField = new JTextField();
         addHospitalPanel.add(addressField);
         addHospitalPanel.add(new JLabel("Phone Number:"));
         JTextField phoneField = new JTextField();
         addHospitalPanel.add(phoneField);
-        addHospitalPanel.add(new JLabel("Email:"));
-        JTextField emailField = new JTextField();
-        addHospitalPanel.add(emailField);
         
         JButton addButton = new JButton("Add");
         addHospitalPanel.add(addButton);
@@ -293,7 +290,7 @@ public class UserManagementGUI extends JFrame {
         JButton backButton = new JButton("Back");
         addHospitalPanel.add(backButton);
         
-        addButton.addActionListener(e -> addHospital(nameField, idField, addressField, phoneField, emailField));
+        addButton.addActionListener(e -> addHospital(idField, nameField, addressField, phoneField));
         backButton.addActionListener(e -> cardLayout.show(cardPanel, "HospitalManagementPanel")); // Return to the hospital management panel
         
         JPanel addHospitalContainer = new JPanel(new BorderLayout());
@@ -332,10 +329,7 @@ public class UserManagementGUI extends JFrame {
             panel.add(new JLabel("Phone Number:"));
             JTextField phoneField = new JTextField();
             panel.add(phoneField);
-            panel.add(new JLabel("Email:"));
-            JTextField emailField = new JTextField();
-            panel.add(emailField);
-            
+
             JButton actionButton = new JButton(action);
             panel.add(actionButton);
     
@@ -344,16 +338,15 @@ public class UserManagementGUI extends JFrame {
                 String name = nameField.getText();
                 String address = addressField.getText();
                 String phone = phoneField.getText();
-                String email = emailField.getText();
     
-                if (id.isEmpty() || (action.equals("Modify") && (name.isEmpty() || address.isEmpty() || phone.isEmpty() || email.isEmpty()))) {
+                if (id.isEmpty() || (action.equals("Modify") && (name.isEmpty() || address.isEmpty() || phone.isEmpty()))) {
                     JOptionPane.showMessageDialog(this, "All fields must be filled.", "Input Error", JOptionPane.ERROR_MESSAGE);
                     return;
                 }
     
                 try {
                     if (action.equals("Modify")) {
-                        modifyHospital(idField.getText(), nameField.getText(), addressField.getText(), phoneField.getText(), emailField.getText());
+                        modifyHospital(idField.getText(), nameField.getText(), addressField.getText(), phoneField.getText());
                     } else if (action.equals("Delete")) {
                         deleteHospital(idField.getText());
                     }
@@ -376,91 +369,238 @@ public class UserManagementGUI extends JFrame {
     }
 
     private JPanel createUserManagementPanel() {
-        JPanel userPanel = new JPanel(new GridLayout(0, 2));
-        userPanel.setBorder(BorderFactory.createTitledBorder("User Management"));
-
-        // Create input fields and labels for user management
-        JTextField userIDField = new JTextField();
-        JTextField nameField = new JTextField();
-        JTextField passwordField = new JTextField();
-        JTextField userTypeField = new JTextField();
-
-        userPanel.add(new JLabel("UserID:"));
-        userPanel.add(userIDField);
-        userPanel.add(new JLabel("Name:"));
-        userPanel.add(nameField);
-        userPanel.add(new JLabel("Password:"));
-        userPanel.add(passwordField);
-        userPanel.add(new JLabel("UserType (admin/staff):"));
-        userPanel.add(userTypeField);
-
-        // Create buttons
+        JPanel userPanel = new JPanel(new BorderLayout());
         JPanel buttonPanel = new JPanel(new GridLayout(5, 1));
+    
         JButton addUserButton = new JButton("Add User");
         JButton modifyUserButton = new JButton("Modify User");
         JButton searchUserButton = new JButton("Search User");
         JButton deleteUserButton = new JButton("Delete User");
         JButton backButton = new JButton("Back");
-
-        addUserButton.addActionListener(e -> addUser(userIDField, nameField, passwordField, userTypeField));
-        modifyUserButton.addActionListener(e -> modifyUser(userIDField, nameField, passwordField, userTypeField));
-        searchUserButton.addActionListener(e -> searchUser(userIDField));
-        deleteUserButton.addActionListener(e -> deleteUser(userIDField));
-        backButton.addActionListener(e -> cardLayout.show(cardPanel, "AdminScreen")); // Go back to admin screen
-
+    
+        addUserButton.addActionListener(e -> showAddUserPanel());
+        modifyUserButton.addActionListener(e -> showModifySearchDeleteUserPanel("Modify"));
+        searchUserButton.addActionListener(e -> showModifySearchDeleteUserPanel("Search"));
+        deleteUserButton.addActionListener(e -> showModifySearchDeleteUserPanel("Delete"));
+        backButton.addActionListener(e -> cardLayout.show(cardPanel, "AdminScreen"));
+    
         buttonPanel.add(addUserButton);
         buttonPanel.add(modifyUserButton);
         buttonPanel.add(searchUserButton);
         buttonPanel.add(deleteUserButton);
         buttonPanel.add(backButton);
-
-        userPanel.add(buttonPanel);
-
+    
+        userPanel.add(buttonPanel, BorderLayout.CENTER);
         return userPanel;
     }
 
     private JPanel createSupplierManagementPanel() {
-        JPanel supplierPanel = new JPanel(new GridLayout(0, 2));
-        supplierPanel.setBorder(BorderFactory.createTitledBorder("Supplier Management"));
-
-        // Create input fields and labels for supplier management
-        JTextField supplierIDField = new JTextField();
-        JTextField supplierNameField = new JTextField();
-        JTextField supplierAddressField = new JTextField();
-        JTextField supplierPhoneField = new JTextField();
-
-        supplierPanel.add(new JLabel("Supplier ID:"));
-        supplierPanel.add(supplierIDField);
-        supplierPanel.add(new JLabel("Name:"));
-        supplierPanel.add(supplierNameField);
-        supplierPanel.add(new JLabel("Address:"));
-        supplierPanel.add(supplierAddressField);
-        supplierPanel.add(new JLabel("Phone:"));
-        supplierPanel.add(supplierPhoneField);
-
-        // Create buttons
+        JPanel supplierPanel = new JPanel(new BorderLayout());
         JPanel buttonPanel = new JPanel(new GridLayout(5, 1));
+    
         JButton addSupplierButton = new JButton("Add Supplier");
         JButton modifySupplierButton = new JButton("Modify Supplier");
         JButton searchSupplierButton = new JButton("Search Supplier");
         JButton deleteSupplierButton = new JButton("Delete Supplier");
         JButton backButton = new JButton("Back");
-
-        addSupplierButton.addActionListener(e -> addSupplier(supplierIDField, supplierNameField, supplierAddressField, supplierPhoneField));
-        modifySupplierButton.addActionListener(e -> modifySupplier(supplierIDField, supplierNameField, supplierAddressField, supplierPhoneField));
-        searchSupplierButton.addActionListener(e -> searchSupplier(supplierIDField));
-        deleteSupplierButton.addActionListener(e -> deleteSupplier(supplierIDField));
-        backButton.addActionListener(e -> cardLayout.show(cardPanel, "AdminScreen")); // Go back to admin screen
-
+    
+        addSupplierButton.addActionListener(e -> showAddSupplierPanel());
+        modifySupplierButton.addActionListener(e -> showModifySearchDeleteSupplierPanel("Modify"));
+        searchSupplierButton.addActionListener(e -> showModifySearchDeleteSupplierPanel("Search"));
+        deleteSupplierButton.addActionListener(e -> showModifySearchDeleteSupplierPanel("Delete"));
+        backButton.addActionListener(e -> cardLayout.show(cardPanel, "AdminScreen"));
+    
         buttonPanel.add(addSupplierButton);
         buttonPanel.add(modifySupplierButton);
         buttonPanel.add(searchSupplierButton);
         buttonPanel.add(deleteSupplierButton);
         buttonPanel.add(backButton);
-
-        supplierPanel.add(buttonPanel);
-
+    
+        supplierPanel.add(buttonPanel, BorderLayout.CENTER);
         return supplierPanel;
+    }
+
+    private void showAddUserPanel() {
+        JPanel addUserPanel = new JPanel(new GridLayout(5, 2));
+        addUserPanel.add(new JLabel("UserID:"));
+        JTextField userIDField = new JTextField();
+        addUserPanel.add(userIDField);
+        addUserPanel.add(new JLabel("Name:"));
+        JTextField nameField = new JTextField();
+        addUserPanel.add(nameField);
+        addUserPanel.add(new JLabel("Password:"));
+        JTextField passwordField = new JTextField();
+        addUserPanel.add(passwordField);
+        addUserPanel.add(new JLabel("UserType (admin/staff):"));
+        JTextField userTypeField = new JTextField();
+        addUserPanel.add(userTypeField);
+    
+        JButton addButton = new JButton("Add");
+        addUserPanel.add(addButton);
+    
+        JButton backButton = new JButton("Back");
+        addUserPanel.add(backButton);
+    
+        addButton.addActionListener(e -> addUser(userIDField, nameField, passwordField, userTypeField));
+        backButton.addActionListener(e -> cardLayout.show(cardPanel, "UserManagementPanel"));
+    
+        JPanel container = new JPanel(new BorderLayout());
+        container.add(addUserPanel, BorderLayout.CENTER);
+    
+        cardPanel.add(container, "AddUserPanel");
+        cardLayout.show(cardPanel, "AddUserPanel");
+    }
+
+    private void showModifySearchDeleteUserPanel(String action) {
+        JPanel panel = new JPanel(new GridLayout(5, 2));
+        panel.add(new JLabel("UserID:"));
+        JTextField userIDField = new JTextField();
+        panel.add(userIDField);
+
+        if (action.equals("Search")) {
+            JButton searchButton = new JButton("Search");
+            panel.add(searchButton);
+
+            searchButton.addActionListener(e -> searchUser(userIDField.getText()));
+        } else {
+            panel.add(new JLabel("Name:"));
+            JTextField nameField = new JTextField();
+            panel.add(nameField);
+            panel.add(new JLabel("Password:"));
+            JTextField passwordField = new JTextField();
+            panel.add(passwordField);
+            panel.add(new JLabel("UserType (admin/staff):"));
+            JTextField userTypeField = new JTextField();
+            panel.add(userTypeField);
+
+            JButton actionButton = new JButton(action);
+            panel.add(actionButton);
+
+            actionButton.addActionListener(e -> {
+                String id = userIDField.getText();
+                String name = nameField.getText();
+                String password = passwordField.getText();
+                String userType = userTypeField.getText();
+
+                if (id.isEmpty() || (action.equals("Modify") && (name.isEmpty() || password.isEmpty() || userType.isEmpty()))) {
+                    JOptionPane.showMessageDialog(this, "All fields must be filled.", "Input Error", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
+                try {
+                    if (action.equals("Modify")) {
+                        modifyUser(id, name, password, userType);
+                    } else if (action.equals("Delete")) {
+                        deleteUser(id);
+                    }
+                } catch (IllegalArgumentException ex) {
+                    JOptionPane.showMessageDialog(this, "Error: " + ex.getMessage(), "Operation Error", JOptionPane.ERROR_MESSAGE);
+                }
+            });
+        }
+
+        JButton backButton = new JButton("Back");
+        panel.add(backButton);
+
+        backButton.addActionListener(e -> cardLayout.show(cardPanel, "UserManagementPanel"));
+
+        JPanel container = new JPanel(new BorderLayout());
+        container.add(panel, BorderLayout.CENTER);
+
+        cardPanel.add(container, action + "UserPanel");
+        cardLayout.show(cardPanel, action + "UserPanel");
+    }
+            
+
+    private void showAddSupplierPanel() {
+        JPanel addSupplierPanel = new JPanel(new GridLayout(5, 2));
+        addSupplierPanel.add(new JLabel("Supplier ID:"));
+        JTextField supplierIDField = new JTextField();
+        addSupplierPanel.add(supplierIDField);
+        addSupplierPanel.add(new JLabel("Name:"));
+        JTextField supplierNameField = new JTextField();
+        addSupplierPanel.add(supplierNameField);
+        addSupplierPanel.add(new JLabel("Address:"));
+        JTextField supplierAddressField = new JTextField();
+        addSupplierPanel.add(supplierAddressField);
+        addSupplierPanel.add(new JLabel("Phone:"));
+        JTextField supplierPhoneField = new JTextField();
+        addSupplierPanel.add(supplierPhoneField);
+    
+        JButton addButton = new JButton("Add");
+        addSupplierPanel.add(addButton);
+    
+        JButton backButton = new JButton("Back");
+        addSupplierPanel.add(backButton);
+    
+        addButton.addActionListener(e -> addSupplier(supplierIDField, supplierNameField, supplierAddressField, supplierPhoneField));
+        backButton.addActionListener(e -> cardLayout.show(cardPanel, "SupplierManagementPanel"));
+    
+        JPanel container = new JPanel(new BorderLayout());
+        container.add(addSupplierPanel, BorderLayout.CENTER);
+    
+        cardPanel.add(container, "AddSupplierPanel");
+        cardLayout.show(cardPanel, "AddSupplierPanel");
+    }
+    
+    private void showModifySearchDeleteSupplierPanel(String action) {
+        JPanel panel = new JPanel(new GridLayout(6, 2));
+        panel.add(new JLabel("Supplier ID:"));
+        JTextField supplierIDField = new JTextField();
+        panel.add(supplierIDField);
+
+        if (action.equals("Search")) {
+            JButton searchButton = new JButton("Search");
+            panel.add(searchButton);
+
+            searchButton.addActionListener(e -> searchSupplier(supplierIDField.getText()));
+        } else {
+            panel.add(new JLabel("Name:"));
+            JTextField supplierNameField = new JTextField();
+            panel.add(supplierNameField);
+            panel.add(new JLabel("Address:"));
+            JTextField supplierAddressField = new JTextField();
+            panel.add(supplierAddressField);
+            panel.add(new JLabel("Phone:"));
+            JTextField supplierPhoneField = new JTextField();
+            panel.add(supplierPhoneField);
+
+            JButton actionButton = new JButton(action);
+            panel.add(actionButton);
+
+            actionButton.addActionListener(e -> {
+                String id = supplierIDField.getText();
+                String name = supplierNameField.getText();
+                String address = supplierAddressField.getText();
+                String phone = supplierPhoneField.getText();
+
+                if (id.isEmpty() || (action.equals("Modify") && (name.isEmpty() || address.isEmpty() || phone.isEmpty()))) {
+                    JOptionPane.showMessageDialog(this, "All fields must be filled.", "Input Error", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
+                try {
+                    if (action.equals("Modify")) {
+                        modifySupplier(id, name, address, phone);
+                    } else if (action.equals("Delete")) {
+                        deleteSupplier(id);
+                    }
+                } catch (IllegalArgumentException ex) {
+                    JOptionPane.showMessageDialog(this, "Error: " + ex.getMessage(), "Operation Error", JOptionPane.ERROR_MESSAGE);
+                }
+            });
+        }
+
+        JButton backButton = new JButton("Back");
+        panel.add(backButton);
+
+        backButton.addActionListener(e -> cardLayout.show(cardPanel, "SupplierManagementPanel"));
+
+        JPanel container = new JPanel(new BorderLayout());
+        container.add(panel, BorderLayout.CENTER);
+
+        cardPanel.add(container, action + "SupplierPanel");
+        cardLayout.show(cardPanel, action + "SupplierPanel");
     }
 
     private void logout() {
@@ -501,42 +641,35 @@ public class UserManagementGUI extends JFrame {
         }
     }
 
-    private void modifyUser(JTextField userIDField, JTextField nameField, JTextField passwordField, JTextField userTypeField) {
-        String userID = userIDField.getText().trim();
-        String newName = nameField.getText().trim();
-        String newPassword = passwordField.getText().trim();
-        String newUserType = userTypeField.getText().trim().toLowerCase();
-
-        if (userID.isEmpty() || newName.isEmpty() || newPassword.isEmpty() || newUserType.isEmpty()) {
+    private void modifyUser(String id, String name, String password, String userType) {
+        if (id.isEmpty() || name.isEmpty() || password.isEmpty() || userType.isEmpty()) {
             showErrorDialog("All fields must be filled out.");
             return;
         }
-
-        if (!newUserType.equals("admin") && !newUserType.equals("staff")) {
-            showErrorDialog("Invalid user type. Must be 'admin' or 'staff'.");
-            return;
-        }
-
+    
         try {
-            Userstuff.modifyUser(userID, newName, newPassword, newUserType);
-            showConfirmationDialog("User modified successfully: " + userID);
+            Userstuff.modifyUser(id, name, password, userType); // Assuming Users is your user management class
+            showConfirmationDialog("User modified successfully: " + id);
         } catch (IllegalArgumentException e) {
-            showErrorDialog(e.getMessage());
+            showErrorDialog("Invalid User ID: " + e.getMessage());
         } catch (IOException e) {
             showErrorDialog("Error modifying user: " + e.getMessage());
         }
     }
 
-    private void searchUser(JTextField userIDField) {
-        String userID = userIDField.getText();
-
+    private void searchUser(String userID) {
+        if (userID.isEmpty()) {
+            showErrorDialog("User ID cannot be empty.");
+            return;
+        }
+    
         try {
-            String details = Userstuff.searchUser(userID);
-            displaySearchUserWindow(userID, details);
+            String details = Userstuff.searchUser(userID); // Assuming Users is your user management class
+            displaySearchUserWindow(userID, details); // Implement this method to display user details
         } catch (IllegalArgumentException e) {
-            showErrorDialog(e.getMessage());
+            showErrorDialog("Error: " + e.getMessage());
         } catch (IOException e) {
-            showErrorDialog("Error searching user: " + e.getMessage());
+            showErrorDialog("Error searching for user: " + e.getMessage());
         }
     }
 
@@ -560,21 +693,22 @@ public class UserManagementGUI extends JFrame {
         searchFrame.setVisible(true);
     }
 
-    private void deleteUser(JTextField userIDField) {
-        String userID = userIDField.getText().trim();
-
-        if (userID.isEmpty()) {
+    private void deleteUser(String id) {
+        if (id.isEmpty()) {
             showErrorDialog("User ID cannot be empty.");
             return;
         }
-
+    
         try {
-            Userstuff.deleteUser(userID);
-            showConfirmationDialog("User deleted successfully: " + userID);
+            Userstuff.deleteUser(id); // Assuming Users is your user management class
+            showConfirmationDialog("User deleted successfully: " + id);
         } catch (IllegalArgumentException e) {
-            showErrorDialog(e.getMessage());
+            showErrorDialog("Invalid User ID: " + e.getMessage());
         } catch (IOException e) {
             showErrorDialog("Error deleting user: " + e.getMessage());
+        } catch (Exception e) {
+            showErrorDialog("An unexpected error occurred: " + e.getMessage());
+            e.printStackTrace();
         }
     }
     
@@ -599,12 +733,7 @@ public class UserManagementGUI extends JFrame {
     }
     
     
-    private void modifySupplier(JTextField supplierIDField, JTextField supplierNameField, JTextField supplierAddressField, JTextField supplierPhoneField) {
-        String supplierID = supplierIDField.getText().trim();
-        String newName = supplierNameField.getText().trim();
-        String newAddress = supplierAddressField.getText().trim();
-        String newPhone = supplierPhoneField.getText().trim();
-    
+    private void modifySupplier(String supplierID, String newName, String newAddress, String newPhone) {
         if (supplierID.isEmpty() || newName.isEmpty() || newAddress.isEmpty() || newPhone.isEmpty()) {
             showErrorDialog("All fields must be filled out.");
             return;
@@ -621,21 +750,15 @@ public class UserManagementGUI extends JFrame {
     }
     
     
-    private void searchSupplier(JTextField supplierIDField) {
-        String supplierID = supplierIDField.getText().trim();
-    
+    private void searchSupplier(String supplierID) {
         if (supplierID.isEmpty()) {
             showErrorDialog("Supplier ID cannot be empty.");
             return;
         }
     
-        StringBuilder supplierDetails = new StringBuilder();
-    
         try {
             String details = Suppliers.searchSupplier(supplierID);
-            supplierDetails.append(details);
-    
-            displaySearchSupplierWindow(supplierID, supplierDetails.toString());
+            displaySearchSupplierWindow(supplierID, details);
         } catch (IllegalArgumentException e) {
             showErrorDialog("Error: " + e.getMessage());
         } catch (IOException e) {
@@ -663,9 +786,7 @@ public class UserManagementGUI extends JFrame {
         searchFrame.setVisible(true);
     }
 
-    private void deleteSupplier(JTextField supplierIDField) {
-        String supplierID = supplierIDField.getText().trim();
-    
+    private void deleteSupplier(String supplierID) {
         if (supplierID.isEmpty()) {
             showErrorDialog("Supplier ID cannot be empty.");
             return;
@@ -684,29 +805,28 @@ public class UserManagementGUI extends JFrame {
         }
     }
 
-    private void addHospital(JTextField nameField, JTextField idField, JTextField addressField, JTextField phoneField, JTextField emailField) {
-        String name = nameField.getText();
+    private void addHospital(JTextField idField, JTextField nameField, JTextField addressField, JTextField phoneField) {
         String id = idField.getText();
+        String name = nameField.getText();
         String address = addressField.getText();
-        String phone = phoneField.getText();
-        String email = emailField.getText();
+        String contact = phoneField.getText(); // Assuming phone field is used for contact info
     
-        if (name.isEmpty() || id.isEmpty() || address.isEmpty() || phone.isEmpty() || email.isEmpty()) {
+        if (id.isEmpty() || name.isEmpty() || address.isEmpty() || contact.isEmpty()) {
             JOptionPane.showMessageDialog(this, "All fields must be filled.");
             return;
         }
     
         try {
-            Hospitals.addHospital(name, id, address, phone, email);
+            Hospitals.addHospital(id, name, address, contact);
             JOptionPane.showMessageDialog(this, "Hospital added successfully.");
         } catch (IllegalArgumentException | IOException e) {
             JOptionPane.showMessageDialog(this, "Error adding hospital: " + e.getMessage());
         }
     }
 
-    private void modifyHospital(String idToModify, String newName, String newAddress, String newPhone, String newEmail) {
+    private void modifyHospital(String idToModify, String newName, String newAddress, String newPhone) {
         try {
-            Hospitals.modifyHospital(idToModify, newName, newAddress, newPhone, newEmail);
+            Hospitals.modifyHospital(idToModify, newName, newAddress, newPhone);
             JOptionPane.showMessageDialog(this, "Hospital modified successfully.");
         } catch (IllegalArgumentException | IOException e) {
             JOptionPane.showMessageDialog(this, "Error modifying hospital: " + e.getMessage());
