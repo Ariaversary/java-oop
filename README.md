@@ -53,7 +53,7 @@ SIMPLIFIED LIST:
 6. Program that tracks the items and prints it into a .pdf file
 7. Program that can search with a filter
 
-My Part (Eric)
+Eric's
 1st Part Q.4 and 2nd Part Q.1
 
 
