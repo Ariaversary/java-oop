@@ -5,7 +5,7 @@ import java.util.List;
 public class PPE {
     public static final String PPE_FILE_NAME = "ppe.txt"; // Make this public
 
-    static class PPEItem {
+    public static class PPEItem {
         private String code;
         private String description;
         private String type;
@@ -16,6 +16,23 @@ public class PPE {
             this.description = description;
             this.type = type;
             this.quantity = quantity;
+        }
+
+        // Getter methods
+        public String getCode() {
+            return code;
+        }
+
+        public String getDescription() {
+            return description;
+        }
+
+        public String getType() {
+            return type;
+        }
+
+        public int getQuantity() {
+            return quantity;
         }
 
         public String toFileFormat() {

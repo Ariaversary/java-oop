@@ -1,3 +1,4 @@
+import javax.swing.*;
 import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -7,6 +8,7 @@ import java.util.Map;
 public class InventoryManagement {
 
     private static final String TRANSACTIONS_FILE = "transactions.txt";
+    private static final String PPE_FILE_NAME = "ppe.txt";
     
     private Map<String, Integer> inventory = new HashMap<>();
     private Suppliers suppliers;
@@ -15,12 +17,13 @@ public class InventoryManagement {
     public InventoryManagement(Suppliers suppliers, Hospitals hospitals) {
         this.suppliers = suppliers;
         this.hospitals = hospitals;
+        Hospitals.initializeHospitalFile(); // Ensure the hospital file is initialized
         loadInventory();
     }
 
     // Load inventory from the PPE file
     private void loadInventory() {
-        try (BufferedReader reader = new BufferedReader(new FileReader(PPE.PPE_FILE_NAME))) {
+        try (BufferedReader reader = new BufferedReader(new FileReader(PPE_FILE_NAME))) {
             String line;
             while ((line = reader.readLine()) != null) {
                 String[] itemData = line.split(",");
@@ -32,6 +35,23 @@ public class InventoryManagement {
             }
         } catch (IOException e) {
             System.err.println("Error loading inventory: " + e.getMessage());
+        }
+    }
+
+    // Update the PPE file with the current inventory
+    private void updatePPEFile() {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(PPE_FILE_NAME))) {
+            for (Map.Entry<String, Integer> entry : inventory.entrySet()) {
+                String code = entry.getKey();
+                int quantity = entry.getValue();
+                // Assuming item description and supplier are fixed or retrieved from somewhere
+                // This part should be adjusted if item description is required
+                String description = "Description"; // Placeholder
+                String supplier = "Supplier"; // Placeholder
+                writer.write(String.format("%s,%s,%s,%d%n", code, description, supplier, quantity));
+            }
+        } catch (IOException e) {
+            System.err.println("Error updating PPE file: " + e.getMessage());
         }
     }
 
@@ -56,31 +76,56 @@ public class InventoryManagement {
     // Add items received from suppliers
     public void addItemFromSupplier(String itemCode, String supplierID, int quantity) {
         if (!suppliers.isValidSupplierID(supplierID)) {
-            System.out.println("Invalid supplier ID.");
+            showErrorDialog("Invalid supplier ID.");
+            return;
+        }
+
+        if (!inventory.containsKey(itemCode)) {
+            showErrorDialog("Item does not exist in the PPE inventory.");
             return;
         }
 
         inventory.put(itemCode, inventory.getOrDefault(itemCode, 0) + quantity);
         recordTransaction(itemCode, supplierID, quantity, true);
-        System.out.println("Items added successfully.");
+        updatePPEFile(); // Update PPE file after adding items
+        showConfirmationDialog("Items added successfully.");
     }
 
     // Distribute items to hospitals
     public void distributeItemToHospital(String itemCode, String hospitalID, int quantity) {
+        // Check if the hospital ID is valid
         if (!hospitals.isHospitalIDInUse(hospitalID)) {
-            System.out.println("Invalid hospital ID.");
+            showErrorDialog("Invalid hospital ID.");
             return;
         }
-
-        int currentQuantity = inventory.getOrDefault(itemCode, 0);
+    
+        // Check if the item exists in the inventory
+        if (!inventory.containsKey(itemCode)) {
+            showErrorDialog("Item does not exist in the PPE inventory.");
+            return;
+        }
+    
+        // Check if there is sufficient stock
+        int currentQuantity = inventory.get(itemCode);
         if (currentQuantity < quantity) {
-            System.out.printf("Insufficient stock. Current stock: %d\n", currentQuantity);
+            showErrorDialog(String.format("Insufficient stock. Current stock: %d", currentQuantity));
             return;
         }
-
+    
+        // Update inventory and record the transaction
         inventory.put(itemCode, currentQuantity - quantity);
         recordTransaction(itemCode, hospitalID, quantity, false);
-        System.out.println("Items distributed successfully.");
+        updatePPEFile(); // Update PPE file after distributing items
+        showConfirmationDialog("Items distributed successfully.");
+    }
+    
+
+    private void showConfirmationDialog(String message) {
+        JOptionPane.showMessageDialog(null, message, "Confirmation", JOptionPane.INFORMATION_MESSAGE);
+    }
+
+    private void showErrorDialog(String message) {
+        JOptionPane.showMessageDialog(null, message, "Error", JOptionPane.ERROR_MESSAGE);
     }
 
     public static void main(String[] args) {
@@ -94,6 +139,5 @@ public class InventoryManagement {
         // Testing updates
         im.addItemFromSupplier("HC", "1", 50); // Add Head Covers from supplier with ID 1
         im.distributeItemToHospital("HC", "1", 20); // Distribute Head Covers to hospital with ID 1
-        
     }
 }

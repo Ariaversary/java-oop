@@ -1,20 +1,20 @@
 import java.io.*;
-import java.util.HashSet;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
+import java.util.HashSet;
 
 public class Hospitals {
     private static final String HOSPITAL_FILE_NAME = "hospitals.txt";
-    private static final int MAX_HOSPITALS = 10;
     private static final Set<String> USED_IDS = new HashSet<>();
+    private static final int MAX_HOSPITALS = 10;
 
-    static {
-        initializeHospitalFile();
-    }
-
+    // Make this method public
     public static void initializeHospitalFile() {
         File hospitalFile = new File(HOSPITAL_FILE_NAME);
         if (!hospitalFile.exists()) {
             try (BufferedWriter writer = new BufferedWriter(new FileWriter(hospitalFile))) {
+                // Adding some test data
                 writer.write("1,Hospital A,Address A,Contact A\n");
                 writer.write("2,Hospital B,Address B,Contact B\n");
                 writer.write("3,Hospital C,Address C,Contact C\n");
@@ -29,10 +29,41 @@ public class Hospitals {
                 e.printStackTrace();
             }
         }
+        loadHospitalIDs(); // Load IDs after file is initialized
     }
-
+    
+    private static void loadHospitalIDs() {
+        USED_IDS.clear();
+        try (BufferedReader reader = new BufferedReader(new FileReader(HOSPITAL_FILE_NAME))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                String[] hospitalData = line.split(",");
+                if (hospitalData.length > 0) {
+                    USED_IDS.add(hospitalData[0]); // Assuming the ID is the first element
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
     public static boolean isHospitalIDInUse(String hospitalID) {
         return USED_IDS.contains(hospitalID);
+    }
+
+    public static Set<String> getAvailableHospitalIDs() {
+        return new HashSet<>(USED_IDS); // Return a copy of the set for debugging
+    }
+
+    public static List<String[]> getAllHospitals() throws IOException {
+        List<String[]> hospitalList = new ArrayList<>();
+        try (BufferedReader reader = new BufferedReader(new FileReader(HOSPITAL_FILE_NAME))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                String[] hospitalData = line.split(",");
+                hospitalList.add(hospitalData);
+            }
+        }
+        return hospitalList;
     }
 
     public static void modifyHospital(String hospitalID, String newName, String newAddress, String newContact) throws IOException {
