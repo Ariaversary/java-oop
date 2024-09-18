@@ -1,6 +1,6 @@
-GW,Description,Supplier,100
-SC,Description,Supplier,100
-GL,Description,Supplier,100
-MS,Description,Supplier,100
-HC,Description,Supplier,100
-FS,Description,Supplier,100
+GW,Gown,3,100
+SC,Shoe Covers,4,100
+GL,Gloves,3,100
+MS,Mask,2,100
+HC,Head Cover,1,122
+FS,Face Shield,1,100
