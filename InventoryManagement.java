@@ -13,12 +13,24 @@ public class InventoryManagement {
     private Map<String, Integer> inventory = new HashMap<>();
     private Suppliers suppliers;
     private Hospitals hospitals;
+    private Map<String, String> itemSupplierMap;
 
     public InventoryManagement(Suppliers suppliers, Hospitals hospitals) {
         this.suppliers = suppliers;
         this.hospitals = hospitals;
+        this.itemSupplierMap = new HashMap<>();
         Hospitals.initializeHospitalFile(); // Ensure the hospital file is initialized
         loadInventory();
+        initializeItemSupplierMap();
+    }
+
+    private void initializeItemSupplierMap() {
+        itemSupplierMap.put("HC", "1"); // Head Cover
+        itemSupplierMap.put("FS", "1"); // Face Shield
+        itemSupplierMap.put("MS", "2"); // Mask
+        itemSupplierMap.put("GL", "3"); // Gloves
+        itemSupplierMap.put("GW", "3"); // Gown
+        itemSupplierMap.put("SC", "4"); // Shoe Covers
     }
 
     // Load inventory from the PPE file
@@ -44,8 +56,6 @@ public class InventoryManagement {
             for (Map.Entry<String, Integer> entry : inventory.entrySet()) {
                 String code = entry.getKey();
                 int quantity = entry.getValue();
-                // Assuming item description and supplier are fixed or retrieved from somewhere
-                // This part should be adjusted if item description is required
                 String description = "Description"; // Placeholder
                 String supplier = "Supplier"; // Placeholder
                 writer.write(String.format("%s,%s,%s,%d%n", code, description, supplier, quantity));
@@ -56,10 +66,10 @@ public class InventoryManagement {
     }
 
     // Record a transaction
-    private void recordTransaction(String itemCode, String entityCode, int quantity, boolean isReceived) {
+    private void recordTransaction(String itemCode, String entityCode, String supplierID, int quantity, boolean isReceived) {
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(TRANSACTIONS_FILE, true))) {
             String type = isReceived ? "Received" : "Distributed";
-            String entry = String.format("%s,%s,%d,%s,%s", itemCode, entityCode, quantity, type, getCurrentDateTime());
+            String entry = String.format("%s,%s,%s,%d,%s,%s", itemCode, supplierID, entityCode, quantity, type, getCurrentDateTime());
             bw.write(entry);
             bw.newLine();
         } catch (IOException e) {
@@ -86,39 +96,41 @@ public class InventoryManagement {
         }
 
         inventory.put(itemCode, inventory.getOrDefault(itemCode, 0) + quantity);
-        recordTransaction(itemCode, supplierID, quantity, true);
+        recordTransaction(itemCode, supplierID, "N/A", quantity, true); // "N/A" for entity as it’s from supplier
         updatePPEFile(); // Update PPE file after adding items
         showConfirmationDialog("Items added successfully.");
     }
 
     // Distribute items to hospitals
     public void distributeItemToHospital(String itemCode, String hospitalID, int quantity) {
-        // Check if the hospital ID is valid
         if (!hospitals.isHospitalIDInUse(hospitalID)) {
             showErrorDialog("Invalid hospital ID.");
             return;
         }
     
-        // Check if the item exists in the inventory
         if (!inventory.containsKey(itemCode)) {
             showErrorDialog("Item does not exist in the PPE inventory.");
             return;
         }
     
-        // Check if there is sufficient stock
         int currentQuantity = inventory.get(itemCode);
         if (currentQuantity < quantity) {
             showErrorDialog(String.format("Insufficient stock. Current stock: %d", currentQuantity));
             return;
         }
     
-        // Update inventory and record the transaction
         inventory.put(itemCode, currentQuantity - quantity);
-        recordTransaction(itemCode, hospitalID, quantity, false);
+        String supplierID = getSupplierIDForItem(itemCode); // Get supplier ID for logging
+        recordTransaction(itemCode, hospitalID, supplierID, quantity, false);
         updatePPEFile(); // Update PPE file after distributing items
         showConfirmationDialog("Items distributed successfully.");
     }
-    
+
+     private String getSupplierIDForItem(String itemCode) {
+        // Retrieve supplier ID based on the item code
+        return itemSupplierMap.getOrDefault(itemCode, "Unknown Supplier ID");
+    }
+
 
     private void showConfirmationDialog(String message) {
         JOptionPane.showMessageDialog(null, message, "Confirmation", JOptionPane.INFORMATION_MESSAGE);

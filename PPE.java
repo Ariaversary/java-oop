@@ -8,7 +8,7 @@ public class PPE {
     public static class PPEItem {
         private String code;
         private String description;
-        private String type;
+        private String type; // Assuming this is a supplier ID or category type
         private int quantity;
 
         public PPEItem(String code, String description, String type, int quantity) {
@@ -57,7 +57,7 @@ public class PPE {
         // List to hold PPE items
         List<PPEItem> ppeItems = new ArrayList<>();
 
-        // Add PPE items with initial data
+        // Add PPE items with initial data, ensuring correct description and supplier ID
         ppeItems.add(new PPEItem("HC", "Head Cover", "1", 100));
         ppeItems.add(new PPEItem("FS", "Face Shield", "1", 100));
         ppeItems.add(new PPEItem("MS", "Mask", "2", 100));

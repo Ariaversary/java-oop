@@ -2,6 +2,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.IOException;
 import java.util.List;
 import java.util.ArrayList;
@@ -79,9 +81,41 @@ public class StaffMenuGUI extends JFrame {
     }
 
     private Object[][] getPPEData() {
-        // Implement this method based on your PPE data source
-        return new Object[0][0];
+    List<PPE.PPEItem> ppeItems = loadPPEItems();
+    Object[][] data = new Object[ppeItems.size()][4];
+
+    for (int i = 0; i < ppeItems.size(); i++) {
+        PPE.PPEItem item = ppeItems.get(i);
+        data[i][0] = item.getCode();        // Code
+        data[i][1] = item.getDescription();  // Description
+        data[i][2] = item.getType();         // Type (Supplier ID)
+        data[i][3] = item.getQuantity();      // Quantity
     }
+
+    return data;
+}
+
+private List<PPE.PPEItem> loadPPEItems() {
+    List<PPE.PPEItem> ppeItems = new ArrayList<>();
+    
+    try (BufferedReader reader = new BufferedReader(new FileReader(PPE.PPE_FILE_NAME))) {
+        String line;
+        while ((line = reader.readLine()) != null) {
+            String[] itemData = line.split(",");
+            if (itemData.length == 4) {
+                String code = itemData[0];
+                String description = itemData[1];
+                String type = itemData[2]; // This can be the supplier ID or category type
+                int quantity = Integer.parseInt(itemData[3]);
+                ppeItems.add(new PPE.PPEItem(code, description, type, quantity));
+            }
+        }
+    } catch (IOException e) {
+        System.err.println("Error loading PPE data: " + e.getMessage());
+    }
+
+    return ppeItems;
+}
 
     private void showHospitalInfoPanel() {
         String[] columnNames = {"Hospital ID", "Name", "Address", "Contact"};

@@ -2,5 +2,5 @@ GW,Description,Supplier,100
 SC,Description,Supplier,100
 GL,Description,Supplier,100
 MS,Description,Supplier,100
-HC,Description,Supplier,216
+HC,Description,Supplier,100
 FS,Description,Supplier,100
