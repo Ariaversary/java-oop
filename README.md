@@ -16,12 +16,12 @@ things to do:
 
 3.~~create a program that creates the suppliers.txt file to store and update supplier details.~~
 
-4. create the inventory update program.
-         -update item quantities every time after receiving/distributing (increase/decrease).
-         - before updating the items, program should check for availabble quantity, user should also be notified.
-                 -program should also state the quantity of items.
-         -record the details of all the updates in a text file (transactions.txt):
-                 -this should include items received and distributed, items code, supplier code and hospital code, quantity received/distributed, and date/time.
+4. ~~create the inventory update program.~~
+        ~~ -update item quantities every time after receiving/distributing (increase/decrease).~~
+       ~~  - before updating the items, program should check for availabble quantity, user should also be notified.~~
+         ~~        -program should also state the quantity of items.~~
+        ~~ -record the details of all the updates in a text file (transactions.txt):~~
+          ~~       -this should include items received and distributed, items code, supplier code and hospital code, quantity received/distributed, and date/time.~~
 
 
 
@@ -50,8 +50,8 @@ SIMPLIFIED LIST:
 4. ~~Program that updates the inventory of items.~~
 5. ~~Program that records the distribution/receiving of items in transactions.txt~~
 
-6. Program that tracks the items and prints it into a .pdf file
-7. Program that can search with a filter
+6. ~~Program that tracks the items and prints it into a .pdf file~~
+7. ~~Program that can search with a filter~~
 
 My Part (Eric)
 1st Part Q.4 and 2nd Part Q.1
