@@ -53,22 +53,6 @@ SIMPLIFIED LIST:
 6. ~~Program that tracks the items and prints it into a .pdf file~~
 7. ~~Program that can search with a filter~~
 
-My Part (Eric)
-1st Part Q.4 and 2nd Part Q.1
-
-
-
-CURRENT ERRORS:
-
-Delete Supplier Error Message: Duplicated Invalid IDs
-
-
-What i should do next:
-create the staff menu
-create the distribution system in the staff menu
-implement the current search methods into the staff menu INCLUDING supplier search, user search, hospital search
-implement the add hospital and add supplier into the staff menu
-implement search for the ppe items
 
 
 
