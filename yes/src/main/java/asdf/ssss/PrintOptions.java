@@ -14,55 +14,42 @@ import java.util.List;
 public class PrintOptions extends JFrame {
     private InventoryManagement inventoryManagement;
 
-    public PrintOptions(StaffMenuGUI staffMenuGUI, InventoryManagement inventoryManagement) {
-        this(staffMenuGUI, inventoryManagement, "Print Options");
-    }
-
-    public PrintOptions(AdminMenuGUI adminMenuGUI, InventoryManagement inventoryManagement) {
-        this(adminMenuGUI, inventoryManagement, "Print Options");
-    }
-
-    public PrintOptions(InventoryManagement inventoryManagement) {
+    public PrintOptions(JFrame parentFrame, InventoryManagement inventoryManagement) {
         this.inventoryManagement = inventoryManagement;
         setTitle("Print Options");
-        setSize(300, 200);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+        setLocationRelativeTo(parentFrame);
         initializeComponents();
+        pack(); // Size the frame to fit the preferred sizes of its components
+        setVisible(true); // Set visibility after components are initialized
     }
 
     private void initializeComponents() {
-        JLabel label = new JLabel("Select print options here");
-        add(label);
-    }
-
-    private PrintOptions(JFrame parentFrame, InventoryManagement inventoryManagement, String title) {
-        this.inventoryManagement = inventoryManagement;
-        setTitle(title);
-        setSize(400, 300);
-        setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-        setLocationRelativeTo(parentFrame);
-
         JPanel panel = new JPanel(new GridLayout(3, 1));
-
+    
         JButton printPPEButton = new JButton("Print PPE Inventory");
         printPPEButton.addActionListener(e -> printInventoryQuantities());
-
+    
         JButton printSearchButton = new JButton("Print Search Orders");
         printSearchButton.addActionListener(e -> printSearchOrders());
-
+    
         JButton backButton = new JButton("Back");
         backButton.addActionListener(e -> dispose());
-
+    
         panel.add(printPPEButton);
         panel.add(printSearchButton);
         panel.add(backButton);
-
+    
         add(panel);
     }
 
     private void printSearchOrders() {
         List<Order> orders = inventoryManagement.fetchOrders();
-        System.out.println("Number of orders fetched: " + orders.size()); // Debugging line
+        if (orders.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "No orders to print.", "Print", JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
+
         try {
             String pdfPath = "search_orders.pdf";
             PdfWriter writer = new PdfWriter(pdfPath);
@@ -92,6 +79,11 @@ public class PrintOptions extends JFrame {
     
     private void printInventoryQuantities() {
         List<InventoryItem> inventoryItems = inventoryManagement.fetchInventoryItems();
+        if (inventoryItems.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "No inventory items to print.", "Print", JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
+
         try {
             String pdfPath = "inventory_quantities.pdf";
             PdfWriter writer = new PdfWriter(pdfPath);
@@ -115,4 +107,13 @@ public class PrintOptions extends JFrame {
             JOptionPane.showMessageDialog(this, "Error creating PDF: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
-}
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> {
+            Suppliers suppliers = new Suppliers();
+            Hospitals hospitals = new Hospitals();
+            InventoryManagement inventoryManagement = new InventoryManagement(suppliers, hospitals);
+            new PrintOptions(null, inventoryManagement);
+        });
+    }
+}    

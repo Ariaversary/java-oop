@@ -75,9 +75,16 @@ public class StaffMenuGUI extends JFrame {
     }
     
     private void openPrintOptions() {
-        new PrintOptions(this, inventoryManagement).setVisible(true);
+        SwingUtilities.invokeLater(() -> {
+            try {
+                PrintOptions printOptions = new PrintOptions(this, inventoryManagement);
+                printOptions.setVisible(true);
+            } catch (Exception e) {
+                e.printStackTrace(); // Log any exceptions
+                JOptionPane.showMessageDialog(this, "Error opening print options: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        });
     }
-
     private void showOrderSearchPanel() {
         JPanel searchPanel = new JPanel(new GridLayout(6, 2));
 

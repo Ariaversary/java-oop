@@ -157,30 +157,35 @@ public class InventoryManagement {
     public List<Order> fetchOrders() {
         List<Order> orders = new ArrayList<>();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-
+    
         try (BufferedReader reader = new BufferedReader(new FileReader(TRANSACTIONS_FILE))) {
             String line;
             int index = 0;
+    
             while ((line = reader.readLine()) != null) {
                 String[] parts = line.split("\\|");
-                if (parts.length >= 6) {
-                    String itemCode = parts[0];
-                    String supplierID = parts[1];
-                    String hospitalID = parts[2];
-                    int quantity = Integer.parseInt(parts[3]);
-                    String type = parts[4];
-                    String dateString = parts[5];
-                    LocalDateTime orderDate;
-                    try {
-                        orderDate = LocalDateTime.parse(dateString, formatter);
-                    } catch (DateTimeParseException e) {
-                        System.err.println("Error parsing date for itemCode " + itemCode + ": " + e.getMessage());
-                        continue;
-                    }
-
-                    String orderId = String.valueOf(index);
-                    orders.add(new Order(orderId, hospitalID, orderDate, itemCode, supplierID, quantity, type));
+                if (parts.length < 6) {
+                    System.err.println("Skipping invalid line: " + line);
+                    continue; // Skip invalid lines
                 }
+    
+                String itemCode = parts[0];
+                String supplierID = parts[1];
+                String hospitalID = parts[2];
+                int quantity;
+                LocalDateTime orderDate;
+    
+                try {
+                    quantity = Integer.parseInt(parts[3]);
+                    orderDate = LocalDateTime.parse(parts[5], formatter);
+                } catch (NumberFormatException | DateTimeParseException e) {
+                    System.err.println("Error processing line for itemCode " + itemCode + ": " + e.getMessage());
+                    continue; // Skip this entry if there's an error
+                }
+    
+                String type = parts[4];
+                String orderId = String.valueOf(index);
+                orders.add(new Order(orderId, hospitalID, orderDate, itemCode, supplierID, quantity, type));
                 index++;
             }
         } catch (IOException e) {
@@ -188,18 +193,33 @@ public class InventoryManagement {
         }
         return orders;
     }
+    
 
     public List<InventoryItem> fetchInventoryItems() {
         List<InventoryItem> items = new ArrayList<>();
-        for (Map.Entry<String, Integer> entry : inventory.entrySet()) {
-            String code = entry.getKey();
-            int quantity = entry.getValue();
-            String description = itemDescriptionMap.getOrDefault(code, "Unknown Description");
-            String supplier = getSupplierIDForItem(code);
-            items.add(new InventoryItem(code, description, supplier, quantity));
+        
+        // Check if inventory is not null and has entries
+        if (inventory != null && !inventory.isEmpty()) {
+            for (Map.Entry<String, Integer> entry : inventory.entrySet()) {
+                String code = entry.getKey();
+                int quantity = entry.getValue();
+                String description = itemDescriptionMap.getOrDefault(code, "Unknown Description");
+                String supplier = getSupplierIDForItem(code);
+    
+                // Only add valid items
+                if (quantity > 0) {
+                    items.add(new InventoryItem(code, description, supplier, quantity));
+                } else {
+                    System.err.println("Item with code " + code + " has a non-positive quantity: " + quantity);
+                }
+            }
+        } else {
+            System.err.println("Inventory is empty or not initialized.");
         }
+    
         return items;
     }
+    
 
     private void showConfirmationDialog(String message) {
         SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(null, message, "Confirmation", JOptionPane.INFORMATION_MESSAGE));
@@ -207,21 +227,5 @@ public class InventoryManagement {
     
     private void showErrorDialog(String message) {
         SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(null, message, "Error", JOptionPane.ERROR_MESSAGE));
-    }
-
-    public static void main(String[] args) {
-        Suppliers suppliers = new Suppliers();
-        Hospitals hospitals = new Hospitals();
-        InventoryManagement inventoryManagement = new InventoryManagement(suppliers, hospitals);
-        
-        // Create PPE file if it doesn't exist
-        PPE.createPPEFile();
-        
-        JFrame frame = new JFrame();
-        PrintOptions printOptions = new PrintOptions(inventoryManagement);
-        frame.add(printOptions);
-        frame.setSize(400, 300);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setVisible(true);
     }
 }
