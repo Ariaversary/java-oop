@@ -104,9 +104,9 @@ public class InventoryManagement {
         }
     
         inventory.put(itemCode, inventory.getOrDefault(itemCode, 0) + quantity);
-        recordTransaction(itemCode, supplierID, "N/A", quantity, true); // Record as received
+        recordTransaction(itemCode, supplierID, "N/A", quantity, true);
         updatePPEFile();
-        showConfirmationDialog("Items added successfully."); // Only show on success
+        showConfirmationDialog("Items added successfully.");
     }
     
 
@@ -129,9 +129,9 @@ public class InventoryManagement {
     
         inventory.put(itemCode, currentQuantity - quantity);
         String supplierID = getSupplierIDForItem(itemCode);
-        recordTransaction(itemCode, supplierID, hospitalID, quantity, false); // Record as distributed
+        recordTransaction(itemCode, supplierID, hospitalID, quantity, false);
         updatePPEFile();
-        showConfirmationDialog("Items distributed successfully."); // Only show on success
+        showConfirmationDialog("Items distributed successfully.");
     }
 
     private void loadSuppliers() {
@@ -162,7 +162,7 @@ public class InventoryManagement {
             String line;
             int index = 0;
             while ((line = reader.readLine()) != null) {
-                String[] parts = line.split("\\|"); // Changed to use | as delimiter
+                String[] parts = line.split("\\|");
                 if (parts.length >= 6) {
                     String itemCode = parts[0];
                     String supplierID = parts[1];

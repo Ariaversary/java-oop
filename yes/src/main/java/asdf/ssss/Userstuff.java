@@ -137,7 +137,7 @@ public class Userstuff {
             while ((line = reader.readLine()) != null) {
                 String[] userData = line.split("\\|");
                 if (userData.length == 5 && userData[0].equals(userID)) {
-                    userFound = true; // User found; skipping writing this line
+                    userFound = true; // User found
                     continue;
                 }
                 writer.write(line); // Write the line to temp file if not deleting
@@ -168,7 +168,7 @@ public class Userstuff {
             }
         } catch (IOException e) {
             e.printStackTrace();
-            return false; // Consider password validation failed on read error
+            return false;
         }
     
         return false; // UserID not found or password mismatch

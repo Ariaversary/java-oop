@@ -101,7 +101,7 @@ public class Search {
         for (TransactionSummary summary : summaryList) {
             Object[] rowData = {
                 summary.getItemCode(),
-                summary.getSupplierID(), // Swapped to display Supplier ID first
+                summary.getSupplierID(),
                 summary.getHospitalID(),
                 summary.getTotalQuantity(),
                 summary.getType(),
@@ -126,7 +126,6 @@ public class Search {
         buttonPanel.add(backButton);
         resultsPanel.add(buttonPanel, BorderLayout.SOUTH);
 
-        // Display the results panel in the class-level resultsFrame
         resultsFrame = new JFrame("Search Results");
         resultsFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         resultsFrame.setSize(800, 400);
@@ -179,8 +178,8 @@ public class Search {
 
     private class TransactionSummary {
         private String itemCode;
-        private String hospitalID; // New field for hospital ID
-        private String supplierID; // New field for supplier ID
+        private String hospitalID;
+        private String supplierID;
         private int totalQuantity;
         private String type;
         private String timestamp;
@@ -191,7 +190,7 @@ public class Search {
             this.supplierID = supplierID;
             this.type = type;
             this.totalQuantity = 0;
-            this.timestamp = ""; // Initialize as empty, will set later
+            this.timestamp = "";
         }
 
         public void addQuantity(int quantity) {

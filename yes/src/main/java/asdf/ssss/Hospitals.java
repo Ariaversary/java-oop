@@ -19,7 +19,6 @@ public class Hospitals {
     public static void initializeHospitalFile() {
         File hospitalFile = new File(HOSPITAL_FILE_NAME);
         if (!hospitalFile.exists()) {
-            // Prepopulate with test data
             try (BufferedWriter writer = new BufferedWriter(new FileWriter(hospitalFile))) {
                 for (int i = 1; i <= MAX_HOSPITALS; i++) {
                     writer.write(i + "|Hospital " + i + "|Address " + i + "|Contact " + i);

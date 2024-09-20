@@ -220,7 +220,7 @@ public class AdminMenuGUI extends JFrame {
                         JOptionPane.showMessageDialog(this, "Hospital ID must be provided.", "Input Error", JOptionPane.ERROR_MESSAGE);
                         return;
                     }
-                    searchHospital(id);  // Pass trimmed ID
+                    searchHospital(id);
                 });
             } else if (action.equals("Delete")) {
                 JButton deleteButton = new JButton("Delete");
@@ -232,9 +232,9 @@ public class AdminMenuGUI extends JFrame {
                         JOptionPane.showMessageDialog(this, "Hospital ID must be provided.", "Input Error", JOptionPane.ERROR_MESSAGE);
                         return;
                     }
-                    deleteHospital(id);  // Pass trimmed ID
+                    deleteHospital(id);
                 });
-            } else { // Modify action
+            } else {
                 panel.add(new JLabel("Hospital Name:"));
                 JTextField nameField = new JTextField();
                 panel.add(nameField);
