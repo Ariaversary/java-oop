@@ -1,3 +1,0 @@
-1|asd|asd|asd
-2|asd|asd|dsa
-3|asd|das|asd
