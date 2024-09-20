@@ -1,4 +1,3 @@
-2,asd,asd,asd
-4,dfg,gffgfsdas,ghjkjh
-1,asd,asd,asd
-3,asd,asd,asd
+1|asd|asd|asd
+3|2|2|2
+4|asd|asd|asd

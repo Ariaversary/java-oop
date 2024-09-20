@@ -230,84 +230,93 @@ public class StaffMenuGUI extends JFrame {
 
     private void showAddItemsPanel() {
         JPanel panel = new JPanel(new GridLayout(5, 2));
-
+    
         JTextField itemCodeField = new JTextField();
         JTextField supplierIDField = new JTextField();
         JTextField quantityField = new JTextField();
-
+    
         panel.add(new JLabel("Item Code:"));
         panel.add(itemCodeField);
         panel.add(new JLabel("Supplier ID:"));
         panel.add(supplierIDField);
         panel.add(new JLabel("Quantity:"));
         panel.add(quantityField);
-
+    
         JButton addButton = new JButton("Add");
         addButton.addActionListener(e -> {
             try {
-                String itemCode = itemCodeField.getText();
-                String supplierID = supplierIDField.getText();
-                int quantity = Integer.parseInt(quantityField.getText());
+                String itemCode = itemCodeField.getText().trim();
+                String supplierID = supplierIDField.getText().trim();
+                int quantity = Integer.parseInt(quantityField.getText().trim());
+    
+                // Validate inputs
+                if (itemCode.isEmpty() || supplierID.isEmpty() || quantity <= 0) {
+                    showErrorDialog("All fields must be filled, and quantity must be a positive integer.");
+                    return; // Exit the listener if validation fails
+                }
+    
                 inventoryManagement.addItemFromSupplier(itemCode, supplierID, quantity);
-                showSuccessDialog("Item added successfully.");
             } catch (NumberFormatException ex) {
-                showErrorDialog("Invalid quantity. Please enter a number.");
+                showErrorDialog("Invalid quantity. Please enter a positive integer.");
             }
         });
-
+    
         panel.add(addButton);
-
+    
         JButton backButton = new JButton("Back");
         backButton.addActionListener(e -> cardLayout.show(mainPanel, "MenuPanel"));
         panel.add(backButton);
-
+    
         mainPanel.add(panel, "AddItemsPanel");
         cardLayout.show(mainPanel, "AddItemsPanel");
     }
-
+    
+    
     private void showDistributeItemsPanel() {
         JPanel panel = new JPanel(new GridLayout(5, 2));
-
+    
         JTextField itemCodeField = new JTextField();
         JTextField hospitalIDField = new JTextField();
         JTextField quantityField = new JTextField();
-
+    
         panel.add(new JLabel("Item Code:"));
         panel.add(itemCodeField);
         panel.add(new JLabel("Hospital ID:"));
         panel.add(hospitalIDField);
         panel.add(new JLabel("Quantity:"));
         panel.add(quantityField);
-
+    
         JButton distributeButton = new JButton("Distribute");
         distributeButton.addActionListener(e -> {
             try {
-                String itemCode = itemCodeField.getText();
-                String hospitalID = hospitalIDField.getText();
-                int quantity = Integer.parseInt(quantityField.getText());
+                String itemCode = itemCodeField.getText().trim();
+                String hospitalID = hospitalIDField.getText().trim();
+                int quantity = Integer.parseInt(quantityField.getText().trim());
+    
+                // Validate inputs
+                if (itemCode.isEmpty() || hospitalID.isEmpty() || quantity <= 0) {
+                    showErrorDialog("All fields must be filled, and quantity must be a positive integer.");
+                    return; // Exit the listener if validation fails
+                }
+    
                 inventoryManagement.distributeItemToHospital(itemCode, hospitalID, quantity);
-                showSuccessDialog("Item distributed successfully.");
             } catch (NumberFormatException ex) {
-                showErrorDialog("Invalid quantity. Please enter a number.");
+                showErrorDialog("Invalid quantity. Please enter a positive integer.");
             }
         });
-
+    
         panel.add(distributeButton);
-
+    
         JButton backButton = new JButton("Back");
         backButton.addActionListener(e -> cardLayout.show(mainPanel, "MenuPanel"));
         panel.add(backButton);
-
+    
         mainPanel.add(panel, "DistributeItemsPanel");
         cardLayout.show(mainPanel, "DistributeItemsPanel");
     }
-
-    private void showSuccessDialog(String message) {
-        JOptionPane.showMessageDialog(this, message, "Success", JOptionPane.INFORMATION_MESSAGE);
-    }
-
+    
     private void showErrorDialog(String message) {
-        JOptionPane.showMessageDialog(this, message, "Error", JOptionPane.ERROR_MESSAGE);
+        SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(this, message, "Error", JOptionPane.ERROR_MESSAGE));
     }
 
     private void logout() {

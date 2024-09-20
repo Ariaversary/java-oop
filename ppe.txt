@@ -2,5 +2,5 @@ GW,Gown,3,100
 SC,Shoe Covers,4,100
 GL,Gloves,3,100
 MS,Mask,2,100
-HC,Head Cover,1,122
+HC,Head Cover,1,111
 FS,Face Shield,1,100

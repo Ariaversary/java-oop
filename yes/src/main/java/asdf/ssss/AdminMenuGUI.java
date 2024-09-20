@@ -184,45 +184,57 @@ public class AdminMenuGUI extends JFrame {
             addHospitalPanel.add(new JLabel("Phone Number:"));
             JTextField phoneField = new JTextField();
             addHospitalPanel.add(phoneField);
-    
+        
             JButton addButton = new JButton("Add");
             addHospitalPanel.add(addButton);
-    
+        
             JButton backButton = new JButton("Back");
             addHospitalPanel.add(backButton);
-    
+        
             addButton.addActionListener(e -> addHospital(idField, nameField, addressField, phoneField));
             backButton.addActionListener(e -> cardLayout.show(cardPanel, "HospitalManagementPanel"));
-    
+        
             JPanel container = new JPanel(new BorderLayout());
             container.add(addHospitalPanel, BorderLayout.CENTER);
-    
+        
             if (!panelMap.containsKey("AddHospitalPanel")) {
                 panelMap.put("AddHospitalPanel", container);
                 cardPanel.add(container, "AddHospitalPanel");
             }
             cardLayout.show(cardPanel, "AddHospitalPanel");
         }
-    
+        
         private void showModifySearchDeleteHospitalPanel(String action) {
-            JPanel panel = new JPanel(new GridLayout(7, 2));
+            JPanel panel = new JPanel(new GridLayout(6, 2));
             panel.add(new JLabel("Hospital ID:"));
             JTextField idField = new JTextField();
             panel.add(idField);
-    
+        
             if (action.equals("Search")) {
                 JButton searchButton = new JButton("Search");
                 panel.add(searchButton);
-    
+        
                 searchButton.addActionListener(e -> {
-                    String id = idField.getText();
+                    String id = idField.getText().trim();
                     if (id.isEmpty()) {
                         JOptionPane.showMessageDialog(this, "Hospital ID must be provided.", "Input Error", JOptionPane.ERROR_MESSAGE);
                         return;
                     }
-                    searchHospital(idField);
+                    searchHospital(id);  // Pass trimmed ID
                 });
-            } else {
+            } else if (action.equals("Delete")) {
+                JButton deleteButton = new JButton("Delete");
+                panel.add(deleteButton);
+                
+                deleteButton.addActionListener(e -> {
+                    String id = idField.getText().trim();
+                    if (id.isEmpty()) {
+                        JOptionPane.showMessageDialog(this, "Hospital ID must be provided.", "Input Error", JOptionPane.ERROR_MESSAGE);
+                        return;
+                    }
+                    deleteHospital(id);  // Pass trimmed ID
+                });
+            } else { // Modify action
                 panel.add(new JLabel("Hospital Name:"));
                 JTextField nameField = new JTextField();
                 panel.add(nameField);
@@ -232,47 +244,38 @@ public class AdminMenuGUI extends JFrame {
                 panel.add(new JLabel("Phone Number:"));
                 JTextField phoneField = new JTextField();
                 panel.add(phoneField);
-    
+        
                 JButton actionButton = new JButton(action);
                 panel.add(actionButton);
-    
+        
                 actionButton.addActionListener(e -> {
-                    String id = idField.getText();
-                    String name = nameField.getText();
-                    String address = addressField.getText();
-                    String phone = phoneField.getText();
-    
-                    if (id.isEmpty() || (action.equals("Modify") && (name.isEmpty() || address.isEmpty() || phone.isEmpty()))) {
+                    String id = idField.getText().trim();
+                    String name = nameField.getText().trim();
+                    String address = addressField.getText().trim();
+                    String phone = phoneField.getText().trim();
+        
+                    if (id.isEmpty() || name.isEmpty() || address.isEmpty() || phone.isEmpty()) {
                         JOptionPane.showMessageDialog(this, "All fields must be filled.", "Input Error", JOptionPane.ERROR_MESSAGE);
                         return;
                     }
-    
-                    try {
-                        if (action.equals("Modify")) {
-                            modifyHospital(idField.getText(), nameField.getText(), addressField.getText(), phoneField.getText());
-                        } else if (action.equals("Delete")) {
-                            deleteHospital(idField.getText());
-                        }
-                    } catch (IllegalArgumentException ex) {
-                        JOptionPane.showMessageDialog(this, "Error: " + ex.getMessage(), "Operation Error", JOptionPane.ERROR_MESSAGE);
-                    }
+                    modifyHospital(id, name, address, phone);  // Pass trimmed values
                 });
             }
-    
+        
             JButton backButton = new JButton("Back");
             panel.add(backButton);
-    
             backButton.addActionListener(e -> cardLayout.show(cardPanel, "HospitalManagementPanel"));
-    
+        
             JPanel container = new JPanel(new BorderLayout());
             container.add(panel, BorderLayout.CENTER);
-    
+        
             if (!panelMap.containsKey(action + "HospitalPanel")) {
                 panelMap.put(action + "HospitalPanel", container);
                 cardPanel.add(container, action + "HospitalPanel");
             }
             cardLayout.show(cardPanel, action + "HospitalPanel");
         }
+         
     
         private JPanel createUserManagementPanel() {
             JPanel userPanel = new JPanel(new BorderLayout());
@@ -365,57 +368,71 @@ public class AdminMenuGUI extends JFrame {
             panel.add(new JLabel("UserID:"));
             JTextField userIDField = new JTextField();
             panel.add(userIDField);
-    
-            if (action.equals("Search")) {
+            
+            // For action types
+            if (action.equals("Delete")) {
+                panel.add(new JLabel("Password:"));
+                JPasswordField passwordField = new JPasswordField();
+                panel.add(passwordField);
+            } else if (action.equals("Search")) {
                 JButton searchButton = new JButton("Search");
                 panel.add(searchButton);
-    
-                searchButton.addActionListener(e -> searchUser(userIDField.getText()));
-            } else {
+                
+                searchButton.addActionListener(e -> {
+                    String id = userIDField.getText();
+                    searchUser(id); // Call searchUser method
+                });
+            } else { // Modify action
                 panel.add(new JLabel("Name:"));
                 JTextField nameField = new JTextField();
                 panel.add(nameField);
+                
                 panel.add(new JLabel("Password:"));
                 JTextField passwordField = new JTextField();
                 panel.add(passwordField);
+                
                 panel.add(new JLabel("UserType (admin/staff):"));
                 JTextField userTypeField = new JTextField();
                 panel.add(userTypeField);
-    
+            }
+        
+            // Only add the action button if it's not a search action
+            if (!action.equals("Search")) {
                 JButton actionButton = new JButton(action);
                 panel.add(actionButton);
-    
+                
                 actionButton.addActionListener(e -> {
                     String id = userIDField.getText();
-                    String name = nameField.getText();
-                    String password = passwordField.getText();
-                    String userType = userTypeField.getText();
-    
-                    if (id.isEmpty() || (action.equals("Modify") && (name.isEmpty() || password.isEmpty() || userType.isEmpty()))) {
-                        JOptionPane.showMessageDialog(this, "All fields must be filled.", "Input Error", JOptionPane.ERROR_MESSAGE);
-                        return;
-                    }
-    
-                    try {
-                        if (action.equals("Modify")) {
-                            modifyUser(id, name, password, userType);
-                        } else if (action.equals("Delete")) {
-                            deleteUser(id);
+                    
+                    if (action.equals("Delete")) {
+                        String password = new String(((JPasswordField) panel.getComponent(3)).getPassword());
+                        if (id.isEmpty() || password.isEmpty()) {
+                            JOptionPane.showMessageDialog(this, "UserID and Password must be filled.", "Input Error", JOptionPane.ERROR_MESSAGE);
+                            return;
                         }
-                    } catch (IllegalArgumentException ex) {
-                        JOptionPane.showMessageDialog(this, "Error: " + ex.getMessage(), "Operation Error", JOptionPane.ERROR_MESSAGE);
+                        deleteUser(id, password);
+                    } else if (action.equals("Modify")) {
+                        String name = ((JTextField) panel.getComponent(2)).getText();
+                        String password = ((JTextField) panel.getComponent(4)).getText();
+                        String userType = ((JTextField) panel.getComponent(6)).getText();
+                        
+                        if (id.isEmpty() || name.isEmpty() || password.isEmpty() || userType.isEmpty()) {
+                            JOptionPane.showMessageDialog(this, "All fields must be filled.", "Input Error", JOptionPane.ERROR_MESSAGE);
+                            return;
+                        }
+                        modifyUser(id, name, password, userType);
                     }
                 });
             }
-    
+        
             JButton backButton = new JButton("Back");
             panel.add(backButton);
-    
+            
             backButton.addActionListener(e -> cardLayout.show(cardPanel, "UserManagementPanel"));
-    
+            
             JPanel container = new JPanel(new BorderLayout());
             container.add(panel, BorderLayout.CENTER);
-    
+            
             if (!panelMap.containsKey(action + "UserPanel")) {
                 panelMap.put(action + "UserPanel", container);
                 cardPanel.add(container, action + "UserPanel");
@@ -457,18 +474,52 @@ public class AdminMenuGUI extends JFrame {
             cardLayout.show(cardPanel, "AddSupplierPanel");
         }
     
-        private void showModifySearchDeleteSupplierPanel(String action) {
+        private void showModifySearchDeleteSupplierPanel(String action) { 
             JPanel panel = new JPanel(new GridLayout(6, 2));
             panel.add(new JLabel("Supplier ID:"));
             JTextField supplierIDField = new JTextField();
             panel.add(supplierIDField);
-    
+            
             if (action.equals("Search")) {
                 JButton searchButton = new JButton("Search");
                 panel.add(searchButton);
-    
-                searchButton.addActionListener(e -> searchSupplier(supplierIDField.getText()));
-            } else {
+                
+                searchButton.addActionListener(e -> {
+                    String supplierID = supplierIDField.getText().trim();
+                    if (supplierID.isEmpty()) {
+                        showErrorDialog("Supplier ID cannot be empty.");
+                        return;
+                    }
+                    try {
+                        String supplierDetails = Suppliers.searchSupplier(supplierID);
+                        displaySearchSupplierWindow(supplierID, supplierDetails);
+                    } catch (IllegalArgumentException ex) {
+                        showErrorDialog("Error: " + ex.getMessage());
+                    } catch (IOException ex) {
+                        showErrorDialog("Error searching for supplier: " + ex.getMessage());
+                    }
+                });
+            } else if (action.equals("Delete")) {
+                JButton deleteButton = new JButton("Delete");
+                panel.add(deleteButton);
+                
+                deleteButton.addActionListener(e -> {
+                    String id = supplierIDField.getText().trim();
+                    if (id.isEmpty()) {
+                        showErrorDialog("Supplier ID cannot be empty.");
+                        return;
+                    }
+        
+                    try {
+                        Suppliers.deleteSupplier(id);
+                        showConfirmationDialog("Supplier deleted successfully: " + id);
+                    } catch (IllegalArgumentException ex) {
+                        showErrorDialog("Error: " + ex.getMessage());
+                    } catch (IOException ex) {
+                        showErrorDialog("Error: " + ex.getMessage());
+                    }
+                });
+            } else { // Handle the Modify action
                 panel.add(new JLabel("Name:"));
                 JTextField supplierNameField = new JTextField();
                 panel.add(supplierNameField);
@@ -478,47 +529,68 @@ public class AdminMenuGUI extends JFrame {
                 panel.add(new JLabel("Phone:"));
                 JTextField supplierPhoneField = new JTextField();
                 panel.add(supplierPhoneField);
-    
-                JButton actionButton = new JButton(action);
-                panel.add(actionButton);
-    
-                actionButton.addActionListener(e -> {
-                    String id = supplierIDField.getText();
-                    String name = supplierNameField.getText();
-                    String address = supplierAddressField.getText();
-                    String phone = supplierPhoneField.getText();
-    
-                    if (id.isEmpty() || (action.equals("Modify") && (name.isEmpty() || address.isEmpty() || phone.isEmpty()))) {
-                        JOptionPane.showMessageDialog(this, "All fields must be filled.", "Input Error", JOptionPane.ERROR_MESSAGE);
+                
+                JButton modifyButton = new JButton("Modify");
+                panel.add(modifyButton);
+                
+                modifyButton.addActionListener(e -> {
+                    String id = supplierIDField.getText().trim();
+                    String name = supplierNameField.getText().trim();
+                    String address = supplierAddressField.getText().trim();
+                    String phone = supplierPhoneField.getText().trim();
+                    
+                    if (id.isEmpty() || name.isEmpty() || address.isEmpty() || phone.isEmpty()) {
+                        showErrorDialog("All fields must be filled.");
                         return;
                     }
-    
+        
                     try {
-                        if (action.equals("Modify")) {
-                            modifySupplier(id, name, address, phone);
-                        } else if (action.equals("Delete")) {
-                            deleteSupplier(id);
-                        }
+                        Suppliers.modifySupplier(id, name, phone, address);
+                        showConfirmationDialog("Supplier modified successfully: " + id);
                     } catch (IllegalArgumentException ex) {
-                        JOptionPane.showMessageDialog(this, "Error: " + ex.getMessage(), "Operation Error", JOptionPane.ERROR_MESSAGE);
+                        showErrorDialog("Error: " + ex.getMessage());
+                    } catch (IOException ex) {
+                        showErrorDialog("Error: " + ex.getMessage());
                     }
                 });
             }
-    
+            
             JButton backButton = new JButton("Back");
             panel.add(backButton);
-    
+            
             backButton.addActionListener(e -> cardLayout.show(cardPanel, "SupplierManagementPanel"));
-    
+            
             JPanel container = new JPanel(new BorderLayout());
             container.add(panel, BorderLayout.CENTER);
-    
+            
             if (!panelMap.containsKey(action + "SupplierPanel")) {
                 panelMap.put(action + "SupplierPanel", container);
                 cardPanel.add(container, action + "SupplierPanel");
             }
             cardLayout.show(cardPanel, action + "SupplierPanel");
         }
+
+        private void displaySearchSupplierWindow(String supplierID, String supplierDetails) {
+            JFrame searchFrame = new JFrame("Search Results");
+            searchFrame.setSize(300, 200);
+            searchFrame.setLocationRelativeTo(this);
+            searchFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        
+            JPanel searchPanel = new JPanel(new BorderLayout());
+            JTextArea searchResultArea = new JTextArea();
+            searchResultArea.setEditable(false);
+            searchResultArea.setText(supplierDetails);
+            searchPanel.add(new JScrollPane(searchResultArea), BorderLayout.CENTER);
+        
+            JButton closeButton = new JButton("Close");
+            closeButton.addActionListener(e -> searchFrame.dispose());
+            searchPanel.add(closeButton, BorderLayout.SOUTH);
+        
+            searchFrame.add(searchPanel);
+            searchFrame.setVisible(true);
+        }
+        
+        
 
     private void logout() {
         this.dispose(); // Close the current admin menu window
@@ -576,7 +648,11 @@ public class AdminMenuGUI extends JFrame {
     
         try {
             String details = Userstuff.searchUser(userID);
-            displaySearchUserWindow(userID, details); //method to display user details
+            if (details == null || details.isEmpty()) {
+                showErrorDialog("User not found.");
+            } else {
+                displaySearchUserWindow(userID, details); // method to display user details
+            }
         } catch (IllegalArgumentException e) {
             showErrorDialog("Error: " + e.getMessage());
         } catch (IOException e) {
@@ -603,18 +679,32 @@ public class AdminMenuGUI extends JFrame {
         searchFrame.add(searchPanel);
         searchFrame.setVisible(true);
     }
+    
 
-    private void deleteUser(String id) {
-        if (id.isEmpty()) {
+    public void deleteUser(String userID, String password) {
+        if (userID.isEmpty()) {
             showErrorDialog("User ID cannot be empty.");
             return;
         }
     
+        // Get the current user's ID from Userstuff
+        String currentUserID = Userstuff.getCurrentUserID(); 
+    
+        // Debug output for verification
+        System.out.println("Current User ID: " + currentUserID);
+        System.out.println("User ID to delete: " + userID);
+    
+        // Check if the user is trying to delete their own account
+        if (userID.trim().equals(currentUserID)) { // Using trim to avoid whitespace issues
+            showErrorDialog("You cannot delete your own account.");
+            return;
+        }
+    
         try {
-            Userstuff.deleteUser(id);
-            showConfirmationDialog("User deleted successfully: " + id);
+            Userstuff.deleteUser(userID, password); // Call the Userstuff deleteUser method
+            showConfirmationDialog("User deleted successfully: " + userID);
         } catch (IllegalArgumentException e) {
-            showErrorDialog("Invalid User ID: " + e.getMessage());
+            showErrorDialog("Invalid User ID or Password: " + e.getMessage());
         } catch (IOException e) {
             showErrorDialog("Error deleting user: " + e.getMessage());
         } catch (Exception e) {
@@ -623,7 +713,11 @@ public class AdminMenuGUI extends JFrame {
         }
     }
     
-
+    // Call this method when the user successfully logs in
+    public void onUserLogin(String userID) {
+        Userstuff.setCurrentUserID(userID); // Set the current user ID in Userstuff
+    }
+    
     private void addSupplier(JTextField supplierIDField, JTextField supplierNameField, JTextField supplierAddressField, JTextField supplierPhoneField) {
         String supplierID = supplierIDField.getText().trim();
         String name = supplierNameField.getText().trim();
@@ -642,79 +736,7 @@ public class AdminMenuGUI extends JFrame {
             showErrorDialog(e.getMessage());
         }
     }
-    
-    
-    private void modifySupplier(String supplierID, String newName, String newAddress, String newPhone) {
-        if (supplierID.isEmpty() || newName.isEmpty() || newAddress.isEmpty() || newPhone.isEmpty()) {
-            showErrorDialog("All fields must be filled out.");
-            return;
-        }
-    
-        try {
-            Suppliers.modifySupplier(supplierID, newName, newPhone, newAddress);
-            showConfirmationDialog("Supplier modified successfully: " + supplierID);
-        } catch (IllegalArgumentException e) {
-            showErrorDialog("Invalid Supplier ID: " + e.getMessage());
-        } catch (IOException e) {
-            showErrorDialog("Error modifying supplier: " + e.getMessage());
-        }
-    }
-    
-    
-    private void searchSupplier(String supplierID) {
-        if (supplierID.isEmpty()) {
-            showErrorDialog("Supplier ID cannot be empty.");
-            return;
-        }
-    
-        try {
-            String details = Suppliers.searchSupplier(supplierID);
-            displaySearchSupplierWindow(supplierID, details);
-        } catch (IllegalArgumentException e) {
-            showErrorDialog("Error: " + e.getMessage());
-        } catch (IOException e) {
-            showErrorDialog("Error searching for supplier: " + e.getMessage());
-        }
-    }
 
-    private void displaySearchSupplierWindow(String supplierID, String supplierDetails) {
-        JFrame searchFrame = new JFrame("Search Results");
-        searchFrame.setSize(300, 200);
-        searchFrame.setLocationRelativeTo(this);
-        searchFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-    
-        JPanel searchPanel = new JPanel(new BorderLayout());
-        JTextArea searchResultArea = new JTextArea();
-        searchResultArea.setEditable(false);
-        searchResultArea.setText(supplierDetails);
-        searchPanel.add(new JScrollPane(searchResultArea), BorderLayout.CENTER);
-    
-        JButton closeButton = new JButton("Close");
-        closeButton.addActionListener(e -> searchFrame.dispose());
-        searchPanel.add(closeButton, BorderLayout.SOUTH);
-    
-        searchFrame.add(searchPanel);
-        searchFrame.setVisible(true);
-    }
-
-    private void deleteSupplier(String supplierID) {
-        if (supplierID.isEmpty()) {
-            showErrorDialog("Supplier ID cannot be empty.");
-            return;
-        }
-    
-        try {
-            Suppliers.deleteSupplier(supplierID);
-            showConfirmationDialog("Supplier deleted successfully: " + supplierID);
-        } catch (IllegalArgumentException e) {
-            showErrorDialog("Invalid Supplier ID: " + e.getMessage());
-        } catch (IOException e) {
-            showErrorDialog("Error deleting supplier: " + e.getMessage());
-        } catch (Exception e) {
-            showErrorDialog("An unexpected error occurred: " + e.getMessage());
-            e.printStackTrace();
-        }
-    }
 
     private void addHospital(JTextField idField, JTextField nameField, JTextField addressField, JTextField phoneField) {
         String id = idField.getText();
@@ -723,57 +745,44 @@ public class AdminMenuGUI extends JFrame {
         String contact = phoneField.getText();
     
         if (id.isEmpty() || name.isEmpty() || address.isEmpty() || contact.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "All fields must be filled.");
+            JOptionPane.showMessageDialog(this, "All fields must be filled.", "Input Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
     
         try {
             Hospitals.addHospital(id, name, address, contact);
-            JOptionPane.showMessageDialog(this, "Hospital added successfully.");
+            JOptionPane.showMessageDialog(this, "Hospital added successfully.", "Success", JOptionPane.INFORMATION_MESSAGE);
         } catch (IllegalArgumentException | IOException e) {
-            JOptionPane.showMessageDialog(this, "Error adding hospital: " + e.getMessage());
-        }
-    }
-
-    private void modifyHospital(String idToModify, String newName, String newAddress, String newPhone) {
-        try {
-            Hospitals.modifyHospital(idToModify, newName, newAddress, newPhone);
-            JOptionPane.showMessageDialog(this, "Hospital modified successfully.");
-        } catch (IllegalArgumentException | IOException e) {
-            JOptionPane.showMessageDialog(this, "Error modifying hospital: " + e.getMessage());
-        }
-    }
-
-    private void searchHospital(JTextField idField) {
-        String id = idField.getText();
-        
-        if (id.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Hospital ID must be provided.");
-            return;
-        }
-    
-        try {
-            String details = Hospitals.searchHospital(id);
-            JOptionPane.showMessageDialog(this, details);
-        } catch (IllegalArgumentException | IOException e) {
-            JOptionPane.showMessageDialog(this, "Error searching hospital: " + e.getMessage());
-        }
-    }
-
-    private void deleteHospital(String id) {
-        if (id.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Hospital ID must be provided.");
-            return;
-        }
-    
-        try {
-            Hospitals.deleteHospital(id);
-            JOptionPane.showMessageDialog(this, "Hospital deleted successfully.");
-        } catch (IllegalArgumentException | IOException e) {
-            JOptionPane.showMessageDialog(this, "Error deleting hospital: " + e.getMessage());
+            JOptionPane.showMessageDialog(this, "Error adding hospital: " + e.getMessage(), "Operation Error", JOptionPane.ERROR_MESSAGE);
         }
     }
     
+    private void searchHospital(String hospitalID) {
+        try {
+            String result = Hospitals.searchHospital(hospitalID);
+            JOptionPane.showMessageDialog(this, result, "Search Result", JOptionPane.INFORMATION_MESSAGE);
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+    
+    private void deleteHospital(String hospitalID) {
+        try {
+            Hospitals.deleteHospital(hospitalID);
+            JOptionPane.showMessageDialog(this, "Hospital deleted successfully.", "Success", JOptionPane.INFORMATION_MESSAGE);
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+    
+    private void modifyHospital(String hospitalID, String name, String address, String contact) {
+        try {
+            Hospitals.modifyHospital(hospitalID, name, address, contact);
+            JOptionPane.showMessageDialog(this, "Hospital modified successfully.", "Success", JOptionPane.INFORMATION_MESSAGE);
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
 
     private void showErrorDialog(String message) {
         JOptionPane.showMessageDialog(this, message, "Error", JOptionPane.ERROR_MESSAGE);

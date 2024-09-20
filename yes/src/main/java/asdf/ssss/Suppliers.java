@@ -10,7 +10,6 @@ public class Suppliers {
     private static Set<String> usedSupplierIDs = new HashSet<>();
 
     static {
-        // Load existing supplier IDs from the file
         loadUsedSupplierIDs();
     }
 
@@ -18,17 +17,21 @@ public class Suppliers {
         try (BufferedReader reader = new BufferedReader(new FileReader(SUPPLIERS_FILE))) {
             String line;
             while ((line = reader.readLine()) != null) {
-                String[] supplierData = line.split(",");
+                String[] supplierData = line.split("\\|");
                 if (supplierData.length > 0) {
                     usedSupplierIDs.add(supplierData[0]);
                 }
             }
         } catch (IOException e) {
-            // File may not exist or be accessible, which is fine at initialization
+            // File may not exist, which is fine at initialization
         }
     }
 
     public static boolean isValidSupplierID(String supplierID) {
+        return supplierID.length() == 1 && usedSupplierIDs.contains(supplierID) || isValidSupplierIDFormat(supplierID);
+    }
+
+    private static boolean isValidSupplierIDFormat(String supplierID) {
         for (String validID : VALID_SUPPLIER_IDS) {
             if (validID.equals(supplierID)) {
                 return true;
@@ -37,12 +40,8 @@ public class Suppliers {
         return false;
     }
 
-    public static boolean isSupplierIDInUse(String supplierID) {
-        return usedSupplierIDs.contains(supplierID);
-    }
-
     public static void addSupplier(String supplierID, String name, String contact, String address) throws IOException {
-        if (!isValidSupplierID(supplierID)) {
+        if (!isValidSupplierIDFormat(supplierID)) {
             throw new IllegalArgumentException("Invalid Supplier ID. Valid IDs are: 1, 2, 3, 4.");
         }
 
@@ -55,7 +54,7 @@ public class Suppliers {
         }
 
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(SUPPLIERS_FILE, true))) {
-            writer.write(supplierID + "," + name + "," + contact + "," + address);
+            writer.write(String.join("|", supplierID, name, contact, address));
             writer.newLine();
         }
 
@@ -63,7 +62,7 @@ public class Suppliers {
     }
 
     public static void modifySupplier(String supplierIDToModify, String newName, String newContact, String newAddress) throws IOException {
-        if (!isValidSupplierID(supplierIDToModify)) {
+        if (!isValidSupplierIDFormat(supplierIDToModify)) {
             throw new IllegalArgumentException("Invalid Supplier ID. Valid IDs are: 1, 2, 3, 4.");
         }
 
@@ -78,10 +77,10 @@ public class Suppliers {
 
             String line;
             while ((line = reader.readLine()) != null) {
-                String[] supplierData = line.split(",");
+                String[] supplierData = line.split("\\|");
                 if (supplierData[0].equals(supplierIDToModify)) {
                     supplierFound = true;
-                    writer.write(String.join(",", supplierIDToModify, newName, newContact, newAddress));
+                    writer.write(String.join("|", supplierIDToModify, newName, newContact, newAddress));
                 } else {
                     writer.write(line);
                 }
@@ -100,7 +99,7 @@ public class Suppliers {
     }
 
     public static String searchSupplier(String supplierIDToSearch) throws IOException {
-        if (!isValidSupplierID(supplierIDToSearch)) {
+        if (!isValidSupplierIDFormat(supplierIDToSearch)) {
             throw new IllegalArgumentException("Invalid Supplier ID. Valid IDs are: 1, 2, 3, 4.");
         }
 
@@ -113,7 +112,7 @@ public class Suppliers {
         try (BufferedReader reader = new BufferedReader(new FileReader(SUPPLIERS_FILE))) {
             String line;
             while ((line = reader.readLine()) != null) {
-                String[] supplierData = line.split(",");
+                String[] supplierData = line.split("\\|");
                 if (supplierData[0].equals(supplierIDToSearch)) {
                     supplierDetails.append("SupplierID: ").append(supplierData[0]).append("\n");
                     supplierDetails.append("Name: ").append(supplierData[1]).append("\n");
@@ -132,8 +131,12 @@ public class Suppliers {
     }
 
     public static void deleteSupplier(String supplierID) throws IOException {
-        if (!isValidSupplierID(supplierID)) {
-            throw new IllegalArgumentException("Invalid Supplier ID. Valid IDs are: 1, 2, 3, 4.");
+        if (supplierID == null || supplierID.trim().isEmpty()) {
+            throw new IllegalArgumentException("Supplier ID cannot be null or empty.");
+        }
+
+        if (!isValidSupplierIDFormat(supplierID) || !isSupplierIDInUse(supplierID)) {
+            throw new IllegalArgumentException("Invalid or non-existent Supplier ID.");
         }
 
         File file = new File(SUPPLIERS_FILE);
@@ -146,7 +149,7 @@ public class Suppliers {
 
             String line;
             while ((line = reader.readLine()) != null) {
-                String[] supplierData = line.split(",");
+                String[] supplierData = line.split("\\|");
                 if (supplierData[0].equals(supplierID)) {
                     supplierFound = true;
                 } else {
@@ -164,5 +167,9 @@ public class Suppliers {
         } else {
             throw new IllegalArgumentException("Supplier not found.");
         }
+    }
+
+    public static boolean isSupplierIDInUse(String supplierID) {
+        return usedSupplierIDs.contains(supplierID);
     }
 }

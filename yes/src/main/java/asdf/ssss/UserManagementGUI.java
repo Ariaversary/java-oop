@@ -5,7 +5,6 @@ import java.awt.*;
 import java.io.*;
 import java.util.List;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -153,6 +152,9 @@ public class UserManagementGUI extends JFrame {
     private void handleLogin(String userID, String password) {
         String userType = authenticate(userID, password);
         if (userType != null) {
+            // Set the current user ID
+            Userstuff.setCurrentUserID(userID); // Set the current user ID here
+
             if (userType.equals("admin")) {
                 showAdminScreen();
             } else if (userType.equals("staff")) {
@@ -165,32 +167,30 @@ public class UserManagementGUI extends JFrame {
     }
 
     private String authenticate(String userID, String password) {
-    if (userID.equals("admin")) {
-        if (password.equals("admin_password")) {
-            return "admin";
-        }
-    }
-
-    try (BufferedReader reader = new BufferedReader(new FileReader(USER_FILE_NAME))) {
-        String line;
-        while ((line = reader.readLine()) != null) {
-            String[] userData = line.split(",");
-            System.out.println("Read user data: " + Arrays.toString(userData));
-            if (userData.length == 5) {
-                String fileUserID = userData[0].trim();
-                String filePassword = userData[2].trim();
-                String fileUserType = userData[3].trim();
-                System.out.println("Comparing with UserID: " + fileUserID + " Password: " + filePassword);
-                if (fileUserID.equals(userID) && filePassword.equals(password)) {
-                    return fileUserType;
-                }
+        if (userID.equals("admin")) {
+            if (password.equals("admin_password")) {
+                return "admin";
             }
         }
-    } catch (IOException e) {
-        showErrorDialog("Error checking user credentials: " + e.getMessage());
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(USER_FILE_NAME))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                String[] userData = line.split("\\|"); // Changed to split by '|'
+                if (userData.length == 5) {
+                    String fileUserID = userData[0].trim();
+                    String filePassword = userData[2].trim();
+                    String fileUserType = userData[3].trim();
+                    if (fileUserID.equals(userID) && filePassword.equals(password)) {
+                        return fileUserType;
+                    }
+                }
+            }
+        } catch (IOException e) {
+            showErrorDialog("Error checking user credentials: " + e.getMessage());
+        }
+        return null;
     }
-    return null;
-}
 
     private void showAdminScreen() {
         if (adminMenuGUI == null) {
@@ -229,5 +229,6 @@ public class UserManagementGUI extends JFrame {
         }
 
         SwingUtilities.invokeLater(() -> new UserManagementGUI().setVisible(true));
+        Hospitals.init();
     }
 }

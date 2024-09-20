@@ -6,9 +6,9 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
@@ -41,7 +41,7 @@ public class Search {
         try (BufferedReader reader = new BufferedReader(new FileReader("transactions.txt"))) {
             String line;
             while ((line = reader.readLine()) != null) {
-                String[] transactionData = line.split(",");
+                String[] transactionData = line.split("\\|"); // Changed delimiter to |
                 if (transactionData.length == 6) {
                     String itemCode = transactionData[0];
                     String supplierID = transactionData[1];
@@ -61,35 +61,48 @@ public class Search {
     public void searchOrders(Component parentComponent, String itemCode, String id, String date, String minQuantity, String maxQuantity) {
         List<PPE.PPEItem> ppeItems = loadPPEItems();
         List<Transaction> transactions = loadTransactions();
-        
-        String[] columnNames = {"Item Code", "Supplier/Hospital ID", "Total Quantity", "Type", "Date"};
+
+        String[] columnNames = {"Item Code", "Supplier ID", "Hospital ID", "Total Quantity", "Type", "Date"};
         DefaultTableModel tableModel = new DefaultTableModel(columnNames, 0);
 
         int minQty = minQuantity.isEmpty() ? 0 : Integer.parseInt(minQuantity);
         int maxQty = maxQuantity.isEmpty() ? Integer.MAX_VALUE : Integer.parseInt(maxQuantity);
         LocalDate filterDate = date.isEmpty() ? null : LocalDate.parse(date, DateTimeFormatter.ISO_DATE);
 
-        Map<String, TransactionSummary> summaryMap = new HashMap<>();
+        List<TransactionSummary> summaryList = new ArrayList<>();
 
         for (Transaction transaction : transactions) {
-            String displayID = transaction.getType().equals("Received") ? transaction.getEntityCode() : transaction.getSupplierID();
-            
-            // Filter criteria
-            if ((itemCode.isEmpty() || transaction.getItemCode().equals(itemCode)) &&
-                (id.isEmpty() || displayID.equals(id)) &&
-                (filterDate == null || LocalDate.parse(transaction.getTimestamp().split(" ")[0], DateTimeFormatter.ISO_DATE).isBefore(filterDate.plusDays(1))) &&
-                (transaction.getQuantity() >= minQty && transaction.getQuantity() <= maxQty)) {
+            String hospitalID = transaction.getEntityCode(); // Extract hospital ID
+            String supplierID = transaction.getSupplierID(); // Extract supplier ID
 
-                String key = transaction.getItemCode() + "|" + displayID + "|" + transaction.getType();
-                summaryMap.putIfAbsent(key, new TransactionSummary(transaction.getItemCode(), displayID, transaction.getType()));
-                summaryMap.get(key).addQuantity(transaction.getQuantity());
+            // Filter criteria
+            boolean matches = (itemCode.isEmpty() || transaction.getItemCode().equals(itemCode)) &&
+                              (id.isEmpty() || hospitalID.equals(id) || supplierID.equals(id)) &&
+                              (filterDate == null || LocalDate.parse(transaction.getTimestamp().split(" ")[0], DateTimeFormatter.ISO_DATE).isEqual(filterDate) || 
+                               LocalDate.parse(transaction.getTimestamp().split(" ")[0], DateTimeFormatter.ISO_DATE).isBefore(filterDate.plusDays(1))) &&
+                              (transaction.getQuantity() >= minQty && transaction.getQuantity() <= maxQty);
+
+            // Debugging output
+            System.out.println("Processing transaction: " + transaction.getItemCode() + ", " + hospitalID + ", " + transaction.getQuantity() + ", Matches: " + matches);
+
+            if (matches) {
+                TransactionSummary summary = new TransactionSummary(transaction.getItemCode(), hospitalID, supplierID, transaction.getType());
+                summary.setTimestamp(transaction.getTimestamp()); // Set timestamp
+                summary.addQuantity(transaction.getQuantity());
+                
+                summaryList.add(summary);
             }
         }
 
-        for (TransactionSummary summary : summaryMap.values()) {
+        // Sort the summaries by item code and then by hospital ID
+        Collections.sort(summaryList, Comparator.comparing(TransactionSummary::getItemCode)
+                                                 .thenComparing(TransactionSummary::getHospitalID));
+
+        for (TransactionSummary summary : summaryList) {
             Object[] rowData = {
                 summary.getItemCode(),
-                summary.getDisplayID(),
+                summary.getSupplierID(), // Swapped to display Supplier ID first
+                summary.getHospitalID(),
                 summary.getTotalQuantity(),
                 summary.getType(),
                 summary.getTimestamp()
@@ -109,7 +122,6 @@ public class Search {
             resultsFrame.dispose();
         });
 
-        // Create a panel for the button
         JPanel buttonPanel = new JPanel();
         buttonPanel.add(backButton);
         resultsPanel.add(buttonPanel, BorderLayout.SOUTH);
@@ -134,7 +146,7 @@ public class Search {
         public Transaction(String itemCode, String supplierID, String entityCode, int quantity, String type, String timestamp) {
             this.itemCode = itemCode;
             this.supplierID = supplierID;
-            this.entityCode = entityCode; // Assume this is the hospital ID for received orders
+            this.entityCode = entityCode;
             this.quantity = quantity;
             this.type = type;
             this.timestamp = timestamp;
@@ -167,14 +179,16 @@ public class Search {
 
     private class TransactionSummary {
         private String itemCode;
-        private String displayID;
+        private String hospitalID; // New field for hospital ID
+        private String supplierID; // New field for supplier ID
         private int totalQuantity;
         private String type;
         private String timestamp;
-
-        public TransactionSummary(String itemCode, String displayID, String type) {
+    
+        public TransactionSummary(String itemCode, String hospitalID, String supplierID, String type) {
             this.itemCode = itemCode;
-            this.displayID = displayID;
+            this.hospitalID = hospitalID;
+            this.supplierID = supplierID;
             this.type = type;
             this.totalQuantity = 0;
             this.timestamp = ""; // Initialize as empty, will set later
@@ -188,8 +202,12 @@ public class Search {
             return itemCode;
         }
 
-        public String getDisplayID() {
-            return displayID;
+        public String getHospitalID() {
+            return hospitalID;
+        }
+    
+        public String getSupplierID() {
+            return supplierID;
         }
 
         public int getTotalQuantity() {
@@ -198,6 +216,10 @@ public class Search {
 
         public String getType() {
             return type;
+        }
+
+        public void setTimestamp(String timestamp) {
+            this.timestamp = timestamp;
         }
 
         public String getTimestamp() {
