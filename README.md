@@ -6,6 +6,7 @@ FIX:
 1. character limit to stuff like name, etc.
 2. fix character checks (such as | in the normal fields) so that it only accepts alphanumerical data
 3. fix the search orders functionn for both admin and staff so that it can correctly search (and output errors) when filtering by date
+4. fix modify user and maybe the other modifies
 
 SIMPLIFIED LIST:
 1. ~~Program that creates users.txt and ppe.txt during start up.~~
