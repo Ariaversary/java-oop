@@ -3,6 +3,7 @@ oops
 ahahahaHAHAHAHAH
 
 FIX:
+1. You can only have 3 or 4 hospitals.!!!!!!!!!!!!!!!!!!!!!!!
 1. character limit to stuff like name, etc.
 2. fix character checks (such as | in the normal fields) so that it only accepts alphanumerical data
 3. fix the search orders functionn for both admin and staff so that it can correctly search (and output errors) when filtering by date
